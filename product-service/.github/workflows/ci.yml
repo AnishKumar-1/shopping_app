@@ -1,0 +1,28 @@
+name: Product Service CI
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Make mvnw executable
+        run: chmod +x mvnw
+
+      - name: Build JAR
+        run: ./mvnw clean package -DskipTests
+
+      - name: build docker image for product service
+        run: docker build -t product-service:0.1 .
