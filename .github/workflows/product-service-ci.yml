@@ -23,6 +23,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Make mvnw executable
+        working-directory: product-service
         run: chmod +x mvnw
 
       - name: Build & Test
@@ -44,6 +45,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Make mvnw executable
+        working-directory: product-service
         run: chmod +x mvnw
 
       - name: Build JAR
