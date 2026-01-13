@@ -22,6 +22,10 @@ jobs:
         with:
           java-version: 21
           distribution: 'temurin'
+
+      - name: Make mvnw executable
+        run: chmod +x mvnw
+
       - name: Build & Test
         working-directory: inventory-service
         run: ./mvnw clean test
@@ -40,6 +44,10 @@ jobs:
         with:
           java-version: 21
           distribution: 'temurin'
+
+      - name: Make mvnw executable
+        run: chmod +x mvnw
+
       - name: Build JAR
         working-directory: inventory-service
         run: ./mvnw clean package

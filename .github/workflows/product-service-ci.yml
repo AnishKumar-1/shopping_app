@@ -22,6 +22,9 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
+      - name: Make mvnw executable
+        run: chmod +x mvnw
+
       - name: Build & Test
         working-directory: product-service
         run: ./mvnw clean test
@@ -39,6 +42,9 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
+
+      - name: Make mvnw executable
+        run: chmod +x mvnw
 
       - name: Build JAR
         working-directory: product-service
