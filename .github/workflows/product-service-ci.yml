@@ -4,10 +4,8 @@ on:
   pull_request:
     branches:
       - develop
-
-  push:
-    branches:
       - main
+
 jobs:
   build-test:
     if: github.event_name == 'pull_request'
