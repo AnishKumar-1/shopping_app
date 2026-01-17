@@ -5,6 +5,9 @@ on:
     branches:
       - develop
       - main
+  push:
+    branches:
+      - main
 
 jobs:
   build-test:
@@ -29,7 +32,7 @@ jobs:
       - run: ./mvn clean test
 
   build-docker:
-    if: github.event_name == 'pull_request' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     steps:
