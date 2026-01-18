@@ -25,7 +25,7 @@ public class Order {
     private Long userId;
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
-    @Column(name = "total_amount")
+    @Column(name = "total_amount",nullable = false)
     private Double totalAmount;
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<OrderItems> orderItems;
