@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/orders")
 public class ProductController {
@@ -28,5 +30,11 @@ public class ProductController {
     @GetMapping("/{order_id}")
     public ResponseEntity<OrderResponseDto> SingleOrderDetails(@PathVariable Long order_id){
         return ResponseEntity.status(HttpStatus.OK).body(orderService.fetch_single_order(order_id));
+    }
+
+    //fetch all order details
+    @GetMapping
+    public ResponseEntity<List<OrderResponseDto>> fetch_all_orders(){
+        return ResponseEntity.status(HttpStatus.OK).body(orderService.fetch_all_orders());
     }
 }
