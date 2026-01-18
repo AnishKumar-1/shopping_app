@@ -13,11 +13,13 @@ import java.util.List;
 @RestControllerAdvice
 public class GlobalException {
 
+    ErrorResponse error;
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException exception, HttpServletRequest request){
         List<String> argError= exception.getBindingResult().getFieldErrors()
                 .stream().map(error->error.getField() + ": " + error.getDefaultMessage()).toList();
-        ErrorResponse response = ErrorResponse.builder()
+                 error= ErrorResponse.builder()
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error("Validation Failed")
                 .message("Invalid request data")
@@ -25,14 +27,13 @@ public class GlobalException {
                 .details(argError)
                 .path(request.getRequestURL().toString())
                 .timestamp(LocalDateTime.now()).build();
-        return ResponseEntity.badRequest().body(response);
+        return ResponseEntity.badRequest().body(error);
     }
 
     @ExceptionHandler(ResourceNotFound.class)
     public ResponseEntity<ErrorResponse> handleDataNotFound(
             ResourceNotFound ex, HttpServletRequest request) {
-
-        ErrorResponse error = new ErrorResponse();
+        error = new ErrorResponse();
         error.setStatus(HttpStatus.NOT_FOUND.value());
         error.setError("Not Found");
         error.setMessage(ex.getMessage());
@@ -48,7 +49,7 @@ public class GlobalException {
     public ResponseEntity<ErrorResponse> handleDuplicateEntry(
             DuplicateResourceException ex, HttpServletRequest request) {
 
-        ErrorResponse error = new ErrorResponse();
+        error = new ErrorResponse();
         error.setStatus(HttpStatus.CONFLICT.value());
         error.setError("Conflict");
         error.setMessage(ex.getMessage());
@@ -62,7 +63,7 @@ public class GlobalException {
     @ExceptionHandler(InsufficientStockException.class)
     public ResponseEntity<ErrorResponse> handleEnsufficentStock(
             InsufficientStockException ex, HttpServletRequest request) {
-        ErrorResponse error = new ErrorResponse();
+        error = new ErrorResponse();
         error.setStatus(HttpStatus.CONFLICT.value());
         error.setError("Conflict");
         error.setMessage(ex.getMessage());
@@ -73,14 +74,27 @@ public class GlobalException {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
-    @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalStateException(
-            IllegalStateException ex, HttpServletRequest request) {
-        ErrorResponse error = new ErrorResponse();
+//    @ExceptionHandler(IllegalStateException.class)
+//    public ResponseEntity<ErrorResponse> handleIllegalStateException(
+//            IllegalStateException ex, HttpServletRequest request) {
+//        error.setStatus(HttpStatus.BAD_REQUEST.value());
+//        error.setError("Bad Request");
+//        error.setMessage(ex.getMessage());
+//        error.setErrorCode("InsufficientStock");
+//        error.setPath(request.getRequestURI());
+//        error.setTimestamp(LocalDateTime.now());
+//
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+//    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleInputValue(
+            IllegalArgumentException ex, HttpServletRequest request) {
+        error = new ErrorResponse();
         error.setStatus(HttpStatus.BAD_REQUEST.value());
         error.setError("Bad Request");
         error.setMessage(ex.getMessage());
-        error.setErrorCode("InsufficientStock");
+        error.setErrorCode("IllegalArgument Exception");
         error.setPath(request.getRequestURI());
         error.setTimestamp(LocalDateTime.now());
 
@@ -90,7 +104,7 @@ public class GlobalException {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleInternalServerError(
             Exception ex, HttpServletRequest request) {
-        ErrorResponse error = new ErrorResponse();
+        error = new ErrorResponse();
         error.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         error.setError("Something went wrong");
         error.setMessage(ex.getMessage());

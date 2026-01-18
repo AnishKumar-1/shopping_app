@@ -6,16 +6,17 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class OrderResponse {
+public class OrderResponseDto {
     private Long orderId;
     private String status;
-    private Double totalAmount;
+    private BigDecimal totalAmount;
     private List<OrderItemsResponseDto> items;
 
 }

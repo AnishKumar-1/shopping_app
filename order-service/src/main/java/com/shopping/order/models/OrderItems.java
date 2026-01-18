@@ -5,7 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-    @Entity
+
+import java.math.BigDecimal;
+
+@Entity
     @Table(name="order_items")
     @Builder
     @Data
@@ -23,7 +26,7 @@ import lombok.NoArgsConstructor;
         @Column(name="product_name")
         private String productName;
         @Column(name="product_price")
-        private Double price;
+        private BigDecimal price;
         private Integer quantity;
         @Column(name="sub_total")
         private Double subtotal;
