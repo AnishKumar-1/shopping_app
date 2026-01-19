@@ -22,13 +22,16 @@ public class Inventory {
     @Column(name="product_id",nullable = false,unique = true)
     private Long productId;
     @Column(name="total_quantity",nullable = false)
-    private Integer totalQuantity;
+    @Builder.Default
+    private Integer totalQuantity=0;
     @Version
     private Long version;
     @Column(name="available_quantity")
-    private Integer availableQuantity;
+    @Builder.Default
+    private Integer availableQuantity=0;
     @Column(name = "reserved_quantity", nullable = false)
-    private Integer reservedQuantity;
+    @Builder.Default
+    private Integer reservedQuantity=0;
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
     private InventoryStatus status;
@@ -39,15 +42,6 @@ public class Inventory {
 
     @PrePersist
     protected void prePersist(){
-        if(reservedQuantity == null){
-            reservedQuantity=0;
-        }
-        if(availableQuantity == null){
-            availableQuantity=0;
-        }
-        if (totalQuantity == null) {
-            totalQuantity = 0;
-        }
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
         }
