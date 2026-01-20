@@ -126,6 +126,17 @@ public class InventoryService {
 
     }
 
+    // check product in stock or out of stock
+
+    public InventoryStatus check_product_status(Long product_id,int requiredQty){
+        Inventory inventory=inventoryRepo.findByProductId(product_id)
+                .orElseThrow(()-> new ResourceNotFound("Product not found in inventory"));
+
+        if(inventory.getAvailableQuantity()<requiredQty){
+            return InventoryStatus.OUT_OF_STOCK;
+        }
+        return InventoryStatus.IN_STOCK;
+    }
 
 
 }
