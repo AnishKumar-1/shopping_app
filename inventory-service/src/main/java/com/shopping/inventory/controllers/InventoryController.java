@@ -1,14 +1,19 @@
 package com.shopping.inventory.controllers;
 
+import com.shopping.inventory.dtos.InventoryCheckRequest;
 import com.shopping.inventory.dtos.InventoryRequestDto;
 import com.shopping.inventory.dtos.InventoryResponseDto;
 import com.shopping.inventory.dtos.ReserverOrReleaseDto;
+import com.shopping.inventory.enums.InventoryStatus;
 import com.shopping.inventory.services.InventoryService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/inventories")
@@ -45,5 +50,14 @@ public class InventoryController {
     @PostMapping("/{product_id}/release")
     public ResponseEntity<ReserverOrReleaseDto> releaseQuantity(@PathVariable Long product_id, @RequestParam Integer quantity){
         return ResponseEntity.status(HttpStatus.OK).body(inventoryService.release_quantity(product_id,quantity));
+    }
+
+   //check product status if in stock or not
+    @PostMapping("/check")
+    public ResponseEntity<Map<String,InventoryStatus>> check_product_availability(@RequestBody InventoryCheckRequest request){
+        Map<String,InventoryStatus> statusRes=new HashMap<>();
+        InventoryStatus result=inventoryService.check_product_status(request.getProductId(), request.getQuantity());
+        statusRes.put("status", result);
+        return ResponseEntity.status(HttpStatus.OK).body(statusRes);
     }
 }
