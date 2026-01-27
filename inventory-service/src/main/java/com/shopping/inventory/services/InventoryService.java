@@ -128,7 +128,7 @@ public class InventoryService {
 
     // check product in stock or out of stock
 
-    public InventoryStatus check_product_status(Long product_id,int requiredQty){
+    public InventoryStatus check_product_status(Long product_id,Integer requiredQty){
         Inventory inventory=inventoryRepo.findByProductId(product_id)
                 .orElseThrow(()-> new ResourceNotFound("Product not found in inventory"));
 

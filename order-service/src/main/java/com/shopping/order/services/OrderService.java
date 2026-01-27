@@ -1,20 +1,29 @@
 package com.shopping.order.services;
 
+import com.shopping.order.FeignClient.InventoryClient;
 import com.shopping.order.FeignClient.ProductClient;
 import com.shopping.order.dto.feignDto.ProductFeignResponseDto;
+import com.shopping.order.dto.inventoryDto.InventoryCheckRequest;
+import com.shopping.order.dto.inventoryDto.InventoryCheckResponse;
 import com.shopping.order.dto.orderDto.OrderCreationResponseDto;
 import com.shopping.order.dto.orderDto.OrderRequestDto;
 import com.shopping.order.dto.orderDto.OrderResponseDto;
 import com.shopping.order.dto.orderDto.ProductItemsRequestDto;
 import com.shopping.order.dto.orderItemDto.OrderItemsResponseDto;
+import com.shopping.order.enums.InventoryStatus;
 import com.shopping.order.enums.OrderStatus;
+import com.shopping.order.exception.InventoryReservationException;
+import com.shopping.order.exception.OutOfStockException;
 import com.shopping.order.exception.ResourceNotFound;
 import com.shopping.order.mappers.OrderItemsMapper;
 import com.shopping.order.models.Order;
 import com.shopping.order.models.OrderItems;
 import com.shopping.order.repository.OrderItemRepo;
 import com.shopping.order.repository.OrderRepo;
+import com.shopping.order.utility.Helper;
+import feign.FeignException;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,23 +32,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-
+@RequiredArgsConstructor
 public class OrderService {
 
-    @Autowired
     private OrderRepo orderRepo;
-    @Autowired
     private OrderItemRepo orderItemRepo;
-    @Autowired
     private ProductClient productClient;
-    @Autowired
     private OrderItemsMapper orderItemsMapper;
-
+    private InventoryClient inventoryClient;
+    private Helper helper;
 
     //create order by taking order id and list of product items details
     @Transactional
     public OrderCreationResponseDto createOrder(OrderRequestDto orderRequestDto){
 
+//        inventoryClient.checkProductAvailability()
+
+        for(ProductItemsRequestDto productItemsRequestDto: orderRequestDto.getItems()){
+            InventoryCheckResponse response= inventoryClient.checkProductAvailability(
+                    new InventoryCheckRequest(productItemsRequestDto.getProductId(),productItemsRequestDto.getQuantity())
+            );
+            if(response.getStatus() == InventoryStatus.OUT_OF_STOCK){
+                throw new OutOfStockException("Cannot create order some of products are out of stock");
+            }
+        }
         Order order = Order.builder()
                 .userId(orderRequestDto.getUserId())
                 .status(OrderStatus.CREATED)
@@ -74,6 +90,17 @@ public class OrderService {
 
         Order response = orderRepo.save(order);
 
+        // after order is created reserved the quantity of product
+        //will get product id and quantity in a list and single user id
+        try{
+            response.getOrderItems().stream().forEach(orderItem->
+                    inventoryClient.reserve(orderItem.getProductId(),orderItem.getQuantity()));
+        }catch (FeignException e){
+             helper.markOrderFailed(response.getId());
+            throw new InventoryReservationException("Failed to reserve inventory for order " + response.getId()
+            );
+        }
+
         return OrderCreationResponseDto.builder()
                 .orderId(response.getId())
                 .status(response.getStatus().name())
@@ -81,10 +108,7 @@ public class OrderService {
     }
 
 
-  /*
-  *  fetch all order details by passing order id
-  *
-  * */
+
 
     @Transactional
     public OrderResponseDto fetch_single_order(Long order_id){
@@ -114,6 +138,10 @@ public class OrderService {
     }
 
     // fetch all order details (admin)
+    /*
+     *  fetch all order details by passing order id
+     *
+     * */
     @Transactional
     public List<OrderResponseDto> fetch_all_orders() {
 

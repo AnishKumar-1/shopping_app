@@ -22,14 +22,14 @@ public class InventoryController {
     @Autowired
     private InventoryService inventoryService;
 
-    //method for create inventory taking json values from body
-    @PostMapping("/{product_id}")
+    //method to create inventory taking json values from body
+    @PostMapping("/product/{product_id}")
     public ResponseEntity<InventoryResponseDto> create_inventory(@PathVariable  Long product_id , @Valid @RequestBody InventoryRequestDto inventoryRequestDto){
         return ResponseEntity.status(HttpStatus.CREATED).body(inventoryService.createInventory(product_id,inventoryRequestDto));
     }
 
     // get inventory by product id
-    @GetMapping("/{product_id}")
+    @GetMapping("/product/{product_id}")
     public ResponseEntity<InventoryResponseDto> inventoryByProductId(@PathVariable Long product_id){
         return ResponseEntity.status(HttpStatus.OK).body(inventoryService.inventory_by_product_id(product_id));
     }
@@ -42,7 +42,7 @@ public class InventoryController {
 
     //reserved quantity
     @PostMapping("/{product_id}/reserve")
-    public ResponseEntity<ReserverOrReleaseDto> reservedQuantity(@PathVariable Long product_id, @RequestParam Integer quantity){
+    public ResponseEntity<ReserverOrReleaseDto> reserve(@PathVariable Long product_id, @RequestParam Integer quantity){
         return ResponseEntity.status(HttpStatus.OK).body(inventoryService.reserve_quantity(product_id,quantity));
     }
 
@@ -54,10 +54,7 @@ public class InventoryController {
 
    //check product status if in stock or not
     @PostMapping("/check")
-    public ResponseEntity<Map<String,InventoryStatus>> check_product_availability(@RequestBody InventoryCheckRequest request){
-        Map<String,InventoryStatus> statusRes=new HashMap<>();
-        InventoryStatus result=inventoryService.check_product_status(request.getProductId(), request.getQuantity());
-        statusRes.put("status", result);
-        return ResponseEntity.status(HttpStatus.OK).body(statusRes);
+    public InventoryStatus check_product_availability(@Valid @RequestBody InventoryCheckRequest request){
+        return inventoryService.check_product_status(request.getProductId(), request.getQuantity());
     }
 }
