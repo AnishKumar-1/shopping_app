@@ -30,6 +30,36 @@ public class GlobalException {
         return ResponseEntity.badRequest().body(error);
     }
 
+    @ExceptionHandler(OutOfStockException.class)
+    public ResponseEntity<ErrorResponse> handleOutOfStock(
+            OutOfStockException ex, HttpServletRequest request) {
+
+        error = new ErrorResponse();
+        error.setStatus(HttpStatus.BAD_REQUEST.value());
+        error.setError("Bad Request");
+        error.setMessage(ex.getMessage());
+        error.setErrorCode("Out Of Stock");
+        error.setPath(request.getRequestURI());
+        error.setTimestamp(LocalDateTime.now());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(InventoryReservationException.class)
+    public ResponseEntity<ErrorResponse> handleInventoryReservationFailed(
+            InventoryReservationException ex, HttpServletRequest request) {
+
+        ErrorResponse error = new ErrorResponse();
+        error.setStatus(HttpStatus.BAD_REQUEST.value());
+        error.setError("Bad Request");
+        error.setMessage(ex.getMessage());
+        error.setErrorCode("Out Of Stock");
+        error.setPath(request.getRequestURI());
+        error.setTimestamp(LocalDateTime.now());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
     @ExceptionHandler(ResourceNotFound.class)
     public ResponseEntity<ErrorResponse> handleDataNotFound(
             ResourceNotFound ex, HttpServletRequest request) {
@@ -74,18 +104,6 @@ public class GlobalException {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
-//    @ExceptionHandler(IllegalStateException.class)
-//    public ResponseEntity<ErrorResponse> handleIllegalStateException(
-//            IllegalStateException ex, HttpServletRequest request) {
-//        error.setStatus(HttpStatus.BAD_REQUEST.value());
-//        error.setError("Bad Request");
-//        error.setMessage(ex.getMessage());
-//        error.setErrorCode("InsufficientStock");
-//        error.setPath(request.getRequestURI());
-//        error.setTimestamp(LocalDateTime.now());
-//
-//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-//    }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleInputValue(

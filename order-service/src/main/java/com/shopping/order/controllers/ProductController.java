@@ -5,6 +5,7 @@ import com.shopping.order.dto.orderDto.OrderRequestDto;
 import com.shopping.order.dto.orderDto.OrderResponseDto;
 import com.shopping.order.services.OrderService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +15,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/orders")
+@RequiredArgsConstructor
 public class ProductController {
 
-    @Autowired
     private OrderService orderService;
 
     //create order by taking user id and items details like product id and its quantity from body
@@ -37,4 +38,6 @@ public class ProductController {
     public ResponseEntity<List<OrderResponseDto>> fetch_all_orders(){
         return ResponseEntity.status(HttpStatus.OK).body(orderService.fetch_all_orders());
     }
+
+
 }
