@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -56,5 +57,11 @@ public class InventoryController {
     @PostMapping("/check")
     public InventoryStatus check_product_availability(@Valid @RequestBody InventoryCheckRequest request){
         return inventoryService.check_product_status(request.getProductId(), request.getQuantity());
+    }
+
+    //List all the inventory data
+    @GetMapping("/list")
+    public ResponseEntity<List<InventoryResponseDto>> list_inventory(){
+        return ResponseEntity.ok(inventoryService.list_all_inventory());
     }
 }

@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class InventoryService {
@@ -137,6 +138,15 @@ public class InventoryService {
         }
         return InventoryStatus.IN_STOCK;
     }
+
+    // get all inventory data
+    //public api later will create for admin as well
+        public List<InventoryResponseDto> list_all_inventory(){
+            List<Inventory> inventories=inventoryRepo.findAll();
+                    return inventories.stream().map(data->InventoryResponseDto.builder()
+                    .productId(data.getProductId()).totalQuantity(data.getTotalQuantity()).status(data.getStatus()).build())
+                    .toList();
+        }
 
 
 }
