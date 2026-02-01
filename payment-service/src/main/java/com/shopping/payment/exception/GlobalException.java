@@ -1,0 +1,33 @@
+package com.shopping.payment.exception;
+
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@RestControllerAdvice
+public class GlobalException {
+
+    ErrorResponse error;
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException exception, HttpServletRequest request){
+        List<String> argError= exception.getBindingResult().getFieldErrors()
+                .stream().map(error->error.getField() + ": " + error.getDefaultMessage()).toList();
+        error= ErrorResponse.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Validation Failed")
+                .message("Invalid request data")
+                .errorCode("VALIDATION_ERROR")
+                .details(argError)
+                .path(request.getRequestURL().toString())
+                .timestamp(LocalDateTime.now()).build();
+        return ResponseEntity.badRequest().body(error);
+    }
+
+}
