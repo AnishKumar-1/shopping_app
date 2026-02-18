@@ -1,5 +1,6 @@
 package com.shopping.order.enums;
 
 public enum OrderStatus {
-    CREATED, CONFIRMED, CANCELLED, FAILED
+    PENDING, CONFIRMED, CANCELLED, FAILED,
+    PAYMENT_PROCESSING
 }

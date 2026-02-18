@@ -3,12 +3,10 @@ package com.shopping.order.services;
 import com.shopping.order.FeignClient.InventoryClient;
 import com.shopping.order.FeignClient.ProductClient;
 import com.shopping.order.dto.feignDto.ProductFeignResponseDto;
+import com.shopping.order.dto.inventoryDto.InventoryActionRequest;
 import com.shopping.order.dto.inventoryDto.InventoryCheckRequest;
 import com.shopping.order.dto.inventoryDto.InventoryCheckResponse;
-import com.shopping.order.dto.orderDto.OrderCreationResponseDto;
-import com.shopping.order.dto.orderDto.OrderRequestDto;
-import com.shopping.order.dto.orderDto.OrderResponseDto;
-import com.shopping.order.dto.orderDto.ProductItemsRequestDto;
+import com.shopping.order.dto.orderDto.*;
 import com.shopping.order.dto.orderItemDto.OrderItemsResponseDto;
 import com.shopping.order.enums.InventoryStatus;
 import com.shopping.order.enums.OrderStatus;
@@ -25,6 +23,8 @@ import feign.FeignException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -35,12 +35,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderService {
 
-    private OrderRepo orderRepo;
-    private OrderItemRepo orderItemRepo;
-    private ProductClient productClient;
-    private OrderItemsMapper orderItemsMapper;
-    private InventoryClient inventoryClient;
-    private Helper helper;
+    private final OrderRepo orderRepo;
+    private final OrderItemRepo orderItemRepo;
+    private final ProductClient productClient;
+    private final OrderItemsMapper orderItemsMapper;
+    private final InventoryClient inventoryClient;
+    private final Helper helper;
 
     //create order by taking order id and list of product items details
     @Transactional
@@ -49,16 +49,16 @@ public class OrderService {
 //        inventoryClient.checkProductAvailability()
 
         for(ProductItemsRequestDto productItemsRequestDto: orderRequestDto.getItems()){
-            InventoryCheckResponse response= inventoryClient.checkProductAvailability(
+            InventoryStatus status = inventoryClient.checkProductAvailability(
                     new InventoryCheckRequest(productItemsRequestDto.getProductId(),productItemsRequestDto.getQuantity())
             );
-            if(response.getStatus() == InventoryStatus.OUT_OF_STOCK){
+            if(status  == InventoryStatus.OUT_OF_STOCK){
                 throw new OutOfStockException("Cannot create order some of products are out of stock");
             }
         }
         Order order = Order.builder()
                 .userId(orderRequestDto.getUserId())
-                .status(OrderStatus.CREATED)
+                .status(OrderStatus.PENDING)
                 .build();
 
         List<OrderItems> orderItems = new ArrayList<>();
@@ -80,22 +80,42 @@ public class OrderService {
                     .productName(productDetails.getName())
                     .price(productDetails.getPrice())
                     .quantity(productItems.getQuantity())
-                    .subtotal(Double.valueOf(String.valueOf(subTotal)))
+                    .subtotal(subTotal)
                     .build();
 
             orderItems.add(items);
         }
         order.setOrderItems(orderItems);
-        order.setTotalAmount(Double.valueOf(String.valueOf(totalAmount))); // ✅ THIS WAS MISSING
+        order.setTotalAmount(totalAmount); //
 
         Order response = orderRepo.save(order);
 
         // after order is created reserved the quantity of product
         //will get product id and quantity in a list and single user id
+       //tracking reserved inventory if order failed then can release it
+        List<OrderItems> reservedItems=new ArrayList<>();
         try{
-            response.getOrderItems().stream().forEach(orderItem->
-                    inventoryClient.reserve(orderItem.getProductId(),orderItem.getQuantity()));
+             //Reserve inventory after order creation for the product
+             for(OrderItems orderItems1: response.getOrderItems()){
+                 inventoryClient.reserve(
+                         new InventoryActionRequest(
+                                 orderItems1.getProductId(),
+                                 orderItems1.getQuantity())
+                 );
+
+                 reservedItems.add(orderItems1);
+             }
+
+
         }catch (FeignException e){
+
+              //compansation logic
+            for(OrderItems releaseItem: reservedItems){
+                inventoryClient.release(
+                        new InventoryActionRequest(
+                                releaseItem.getProductId(),releaseItem.getQuantity())
+                );
+            }
              helper.markOrderFailed(response.getId());
             throw new InventoryReservationException("Failed to reserve inventory for order " + response.getId()
             );
@@ -143,15 +163,15 @@ public class OrderService {
      *
      * */
     @Transactional
-    public List<OrderResponseDto> fetch_all_orders() {
+    public List<OrderResponseDto> fetch_all_orders(Pageable pageable) {
 
-        List<Order> orders = orderRepo.findAllWithItems(); // fetch join
+        Page<Order> orders = orderRepo.findAll(pageable); // fetch join
 
         return orders.stream()
                 .map(order -> OrderResponseDto.builder()
                         .orderId(order.getId())
                         .status(order.getStatus().name())
-                        .totalAmount(BigDecimal.valueOf(order.getTotalAmount())) // ✅ no conversion
+                        .totalAmount(order.getTotalAmount()) // ✅ no conversion
                         .items(order.getOrderItems().stream()
                                 .map(orderItemsMapper::mapToOrderItemsDto)
                                 .toList())
@@ -159,6 +179,51 @@ public class OrderService {
                 .toList();
     }
 
+
+    @Transactional
+    public String update_order_status(UpdateOrderStatusRequest statusReq, Long order_id){
+
+        Order order = orderRepo.findById(order_id)
+                .orElseThrow(() -> new ResourceNotFound("Order not found"));
+
+        if(order.getStatus() != OrderStatus.PENDING){
+            throw new IllegalStateException("Only PENDING orders can change status");
+        }
+
+        OrderStatus newStatus = statusReq.getOrderStatus();
+
+        try {
+
+            if(newStatus == OrderStatus.CONFIRMED) {
+                order.getOrderItems().forEach(item ->
+                        inventoryClient.confirm(
+                                new InventoryActionRequest(
+                                        item.getProductId(),
+                                        item.getQuantity()
+                                )
+                        )
+                );
+            }
+
+            if(newStatus == OrderStatus.FAILED) {
+                order.getOrderItems().forEach(item ->
+                        inventoryClient.release(
+                                new InventoryActionRequest(
+                                        item.getProductId(),
+                                        item.getQuantity()
+                                )
+                        )
+                );
+            }
+
+        } catch (FeignException e) {
+            throw new RuntimeException("Inventory synchronization failed");
+        }
+
+        order.setStatus(newStatus);
+
+        return "Order status updated successfully.";
+    }
 
 
 }
