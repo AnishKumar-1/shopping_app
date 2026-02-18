@@ -3,9 +3,12 @@ package com.shopping.order.controllers;
 import com.shopping.order.dto.orderDto.OrderCreationResponseDto;
 import com.shopping.order.dto.orderDto.OrderRequestDto;
 import com.shopping.order.dto.orderDto.OrderResponseDto;
+import com.shopping.order.dto.orderDto.UpdateOrderStatusRequest;
 import com.shopping.order.services.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderController {
 
-    private OrderService orderService;
+    private final OrderService orderService;
 
     //create order by taking user id and items details like product id and its quantity from body
 
@@ -32,11 +35,20 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.OK).body(orderService.fetch_single_order(order_id));
     }
 
-    //fetch all order details
+    //fetch all order by pagination
     @GetMapping
-    public ResponseEntity<List<OrderResponseDto>> fetch_all_orders(){
-        return ResponseEntity.status(HttpStatus.OK).body(orderService.fetch_all_orders());
+    public ResponseEntity<List<OrderResponseDto>> fetch_all_orders(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+      Pageable pageable= PageRequest.of(page,size);
+        return ResponseEntity.status(HttpStatus.OK).body(orderService.fetch_all_orders(pageable));
     }
 
+   //update order status
+    @PatchMapping("/status/{orderId}")
+    public ResponseEntity<String> update_order_status(@Valid @RequestBody UpdateOrderStatusRequest statusReq,@PathVariable Long orderId){
+     return ResponseEntity.status(HttpStatus.OK).body(orderService.update_order_status(statusReq,orderId));
+    }
 
 }

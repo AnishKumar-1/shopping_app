@@ -29,6 +29,6 @@ import java.math.BigDecimal;
         private BigDecimal price;
         private Integer quantity;
         @Column(name="sub_total")
-        private Double subtotal;
+        private BigDecimal subtotal;
 
 }

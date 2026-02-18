@@ -1,5 +1,6 @@
 package com.shopping.inventory.services;
 
+import com.shopping.inventory.dtos.InventoryCheckRequest;
 import com.shopping.inventory.dtos.InventoryRequestDto;
 import com.shopping.inventory.dtos.InventoryResponseDto;
 import com.shopping.inventory.dtos.ReserverOrReleaseDto;
@@ -80,20 +81,20 @@ public class InventoryService {
 
     //reserve quantity value when payment is processing
     @Transactional
-    public ReserverOrReleaseDto reserve_quantity(Long product_id, Integer quantity){
-        Inventory inventory = inventoryRepo.findByProductId(product_id)
+    public ReserverOrReleaseDto reserve_quantity(InventoryCheckRequest request){
+        Inventory inventory = inventoryRepo.findByProductId(request.getProductId())
                 .orElseThrow(() -> new ResourceNotFound(
-                        "Inventory not found for productId: " + product_id));
+                        "Inventory not found for productId: " + request.getProductId()));
 
         int available = inventory.getTotalQuantity() - inventory.getReservedQuantity();
 
-        if (available < quantity) {
+        if (available < request.getQuantity()) {
             throw new InsufficientStockException(
-                    "Insufficient stock for productId: " + product_id);
+                    "Insufficient stock for productId: " + request.getProductId());
         }
 
         inventory.setReservedQuantity(
-                inventory.getReservedQuantity() + quantity
+                inventory.getReservedQuantity() + request.getQuantity()
         );
 
         InventoryHelper.recalculateStock(inventory);
@@ -107,16 +108,16 @@ public class InventoryService {
 
     //release quantity means order has canceled add again to available quantity and remove this value from reserved quantity
     @Transactional
-    public ReserverOrReleaseDto release_quantity(Long product_id, Integer quantity){
-        Inventory inventory = inventoryRepo.findByProductId(product_id)
+    public ReserverOrReleaseDto release_quantity(InventoryCheckRequest request){
+        Inventory inventory = inventoryRepo.findByProductId(request.getProductId())
                 .orElseThrow(() -> new ResourceNotFound(
-                        "Inventory not found for productId: " + product_id
+                        "Inventory not found for productId: " + request.getProductId()
                 ));
-        if(inventory.getReservedQuantity()<quantity){
+        if(inventory.getReservedQuantity()<request.getQuantity()){
             throw new IllegalStateException("Cannot release more than reserved quantity");
         }
-        inventory.setReservedQuantity(inventory.getReservedQuantity() - quantity);
-        inventory.setAvailableQuantity(inventory.getAvailableQuantity() + quantity);
+        inventory.setReservedQuantity(inventory.getReservedQuantity() - request.getQuantity());
+        inventory.setAvailableQuantity(inventory.getAvailableQuantity() + request.getQuantity());
         inventory.setStatus(InventoryStatus.IN_STOCK);
         inventory.setUpdatedAt(LocalDateTime.now());
         Inventory updated_inventory=inventoryRepo.save(inventory);
@@ -147,6 +148,37 @@ public class InventoryService {
                     .productId(data.getProductId()).totalQuantity(data.getTotalQuantity()).status(data.getStatus()).build())
                     .toList();
         }
+
+    @Transactional
+    public ReserverOrReleaseDto confirm_quantity(InventoryCheckRequest request) {
+
+        Inventory inventory = inventoryRepo.findByProductId(request.getProductId())
+                .orElseThrow(() ->
+                        new ResourceNotFound("Inventory not found for productId: " + request.getProductId()));
+
+        if (inventory.getReservedQuantity() < request.getQuantity()) {
+            throw new IllegalStateException("Cannot confirm more than reserved quantity");
+        }
+
+        inventory.setReservedQuantity(
+                inventory.getReservedQuantity() - request.getQuantity()
+        );
+
+        inventory.setTotalQuantity(
+                inventory.getTotalQuantity() - request.getQuantity()
+        );
+
+        InventoryHelper.recalculateStock(inventory);
+
+        Inventory updated = inventoryRepo.save(inventory);
+
+        return ReserverOrReleaseDto.builder()
+                .productId(updated.getProductId())
+                .availableQuantity(updated.getAvailableQuantity())
+                .reservedQuantity(updated.getReservedQuantity())
+                .status(updated.getStatus())
+                .build();
+    }
 
 
 }
