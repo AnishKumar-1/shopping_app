@@ -42,15 +42,15 @@ public class InventoryController {
     }
 
     //reserved quantity
-    @PostMapping("/{product_id}/reserve")
-    public ResponseEntity<ReserverOrReleaseDto> reserve(@PathVariable Long product_id, @RequestParam Integer quantity){
-        return ResponseEntity.status(HttpStatus.OK).body(inventoryService.reserve_quantity(product_id,quantity));
+    @PostMapping("/reserve")
+    public ResponseEntity<ReserverOrReleaseDto> reserve(@Valid @RequestBody InventoryCheckRequest request){
+        return ResponseEntity.status(HttpStatus.OK).body(inventoryService.reserve_quantity(request));
     }
 
     //release reserved quantity due to order cancel or payment not made
-    @PostMapping("/{product_id}/release")
-    public ResponseEntity<ReserverOrReleaseDto> releaseQuantity(@PathVariable Long product_id, @RequestParam Integer quantity){
-        return ResponseEntity.status(HttpStatus.OK).body(inventoryService.release_quantity(product_id,quantity));
+    @PostMapping("/release")
+    public ResponseEntity<ReserverOrReleaseDto> releaseQuantity(@Valid @RequestBody InventoryCheckRequest request){
+        return ResponseEntity.status(HttpStatus.OK).body(inventoryService.release_quantity(request));
     }
 
    //check product status if in stock or not
@@ -63,5 +63,10 @@ public class InventoryController {
     @GetMapping("/list")
     public ResponseEntity<List<InventoryResponseDto>> list_inventory(){
         return ResponseEntity.ok(inventoryService.list_all_inventory());
+    }
+
+    @PostMapping("/confirm")
+    public ResponseEntity<ReserverOrReleaseDto> confirm_quantity(@Valid @RequestBody InventoryCheckRequest request){
+        return ResponseEntity.status(HttpStatus.OK).body(inventoryService.confirm_quantity(request));
     }
 }
