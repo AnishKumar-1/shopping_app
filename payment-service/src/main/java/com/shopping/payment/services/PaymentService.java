@@ -4,6 +4,7 @@ import com.shopping.payment.enums.OrderStatus;
 import com.shopping.payment.enums.PaymentStatus;
 import com.shopping.payment.exception.InvalidOrderStateException;
 import com.shopping.payment.exception.ResourceNotFoundException;
+import com.shopping.payment.feignClient.CartClient;
 import com.shopping.payment.feignClient.OrderClient;
 import com.shopping.payment.modules.Payment;
 import com.shopping.payment.repository.PaymentRepo;
@@ -18,25 +19,22 @@ public class PaymentService {
 
     private final OrderClient orderClient;
     private final PaymentRepo paymentRepo;
+    private final CartClient cartClient;
+
 
     //create payment after order creation
     @Transactional
     public PaymentResponseDto make_payment(PaymentRequestDto paymentRequestDto){
-
-
         // 1️⃣ Fetch order
         OrderPaymentDetailsDto orderResponse =
                 orderClient.SingleOrderDetails(paymentRequestDto.getOrderId());
 
-        if(paymentRequestDto.getAmount()
-                .compareTo(orderResponse.getTotalAmount()) != 0) {
-            throw new IllegalArgumentException("Invalid payment amount");
-        }
-
-        // 2️⃣ Allow payment only for PENDING
-        if(!orderResponse.getStatus().equals("PENDING")){
-            throw new InvalidOrderStateException(
-                    "Payment not allowed for this order: " + orderResponse.getStatus());
+        // ✅ ADD THIS VALIDATION HERE
+        if(orderResponse.getStatus() != OrderStatus.PENDING) {
+            throw new IllegalStateException(
+                    "Payment not allowed for order in state: "
+                            + orderResponse.getStatus()
+            );
         }
 
         // 3️⃣ Mark order as PAYMENT_PROCESSING
@@ -56,17 +54,18 @@ public class PaymentService {
                 .orderId(orderResponse.getOrderId())
                 .paymentMethod(paymentRequestDto.getPaymentMethod())
                 .status(paymentStatus)
-                .amount(paymentRequestDto.getAmount())
+                .amount(orderResponse.getTotalAmount())
                 .build();
 
         Payment response = paymentRepo.save(payment);
 
-        // 6️⃣ Update order final status
+        //  Update order final status
         if(paymentSuccess){
             orderClient.updateOrderStatus(
                     new UpdateOrderStatusRequest(OrderStatus.CONFIRMED),
                     orderResponse.getOrderId()
             );
+            cartClient.clear_cart();
         } else {
             orderClient.updateOrderStatus(
                     new UpdateOrderStatusRequest(OrderStatus.FAILED),

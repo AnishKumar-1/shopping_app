@@ -4,8 +4,6 @@ import com.shopping.order.enums.OrderStatus;
 import com.shopping.order.models.Order;
 import com.shopping.order.repository.OrderRepo;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;

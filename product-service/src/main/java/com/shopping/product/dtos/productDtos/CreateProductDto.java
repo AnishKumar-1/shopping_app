@@ -12,7 +12,6 @@ import java.math.BigDecimal;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class CreateProductDto {
 
     @NotEmpty(message = "product name not found")
@@ -21,4 +20,6 @@ public class CreateProductDto {
     private String description;
     @NotNull(message = "product price not found")
     private BigDecimal price;
+    @NotEmpty(message = "image url not found")
+    private String imageUrl;
 }

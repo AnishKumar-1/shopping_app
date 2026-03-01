@@ -14,5 +14,6 @@ import java.math.BigDecimal;
 public class UpdateProductRepo {
     private String name;
     private String description;
+    private String imageUrl;
     private BigDecimal price;
 }

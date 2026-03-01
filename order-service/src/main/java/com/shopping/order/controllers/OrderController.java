@@ -1,9 +1,6 @@
 package com.shopping.order.controllers;
 
-import com.shopping.order.dto.orderDto.OrderCreationResponseDto;
-import com.shopping.order.dto.orderDto.OrderRequestDto;
-import com.shopping.order.dto.orderDto.OrderResponseDto;
-import com.shopping.order.dto.orderDto.UpdateOrderStatusRequest;
+import com.shopping.order.dto.orderDto.*;
 import com.shopping.order.services.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -46,9 +43,16 @@ public class OrderController {
     }
 
    //update order status
-    @PatchMapping("/status/{orderId}")
+    @PutMapping("/status/{orderId}")
     public ResponseEntity<String> update_order_status(@Valid @RequestBody UpdateOrderStatusRequest statusReq,@PathVariable Long orderId){
      return ResponseEntity.status(HttpStatus.OK).body(orderService.update_order_status(statusReq,orderId));
     }
 
+    @PostMapping("/checkout")
+    public ResponseEntity<OrderCreationResponseDto> checkout(
+            @RequestBody CheckoutRequest request) {
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(orderService.checkout(request));
+    }
 }

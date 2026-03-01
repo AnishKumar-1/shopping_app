@@ -1,6 +1,5 @@
 package com.shopping.payment.dto;
 
-import com.shopping.payment.enums.PaymentMethod;
 import com.shopping.payment.enums.PaymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
