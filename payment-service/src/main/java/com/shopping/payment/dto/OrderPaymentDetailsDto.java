@@ -1,5 +1,6 @@
 package com.shopping.payment.dto;
 
+import com.shopping.payment.enums.OrderStatus;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -9,6 +10,6 @@ public class OrderPaymentDetailsDto {
 
     private Long orderId;
     private BigDecimal totalAmount;
-    private String status;
+    private OrderStatus status;
 
 }

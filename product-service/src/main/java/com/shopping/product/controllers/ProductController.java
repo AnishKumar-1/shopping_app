@@ -15,6 +15,7 @@ import java.util.List;
 @RestController
 @Validated
 @RequestMapping("/api/v1/product")
+@CrossOrigin(origins = "http://localhost:5173/")
 public class ProductController {
 
     @Autowired
@@ -45,7 +46,7 @@ public class ProductController {
     }
 
     //update product by its id and take data from user in json form
-    @PatchMapping("/{productId}")
+    @PutMapping("/{productId}")
     public ResponseEntity<String> updateProduct(@PathVariable Long productId, @RequestBody UpdateProductRepo request){
         return ResponseEntity.ok(productService.updateProduct(productId,request));
     }

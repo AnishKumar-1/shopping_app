@@ -1,112 +1,37 @@
 import Navbar from "../components/layout/Navbar"
 import ProductList from "../components/product/ProductList"
 import Footer from "../components/layout/Footer"
+import { useEffect, useState } from "react"
+import { getProduct } from "../services/productService"
+import { getInventory } from "../services/inventoryService"
 
 function HomePage() {
 
-  const products = [
-    {
-      id: 1,
-      name: "Wireless Headphones",
-      description: "High quality noise cancelling headphones",
-      price: 2999,
-      imageUrl: "https://sony.scene7.com/is/image/sonyglobalsolutions/WH1000XM6_Primary_image_Midnight_Blue?$primaryshotPreset$&fmt=png-alpha",
-      inStock: true
-    },
-    {
-      id: 2,
-      name: "Smart Watch",
-      description: "Track your fitness and notifications",
-      price: 4999,
-      imageUrl: "https://images.unsplash.com/photo-1516570161787-2fd917215a3d",
-      inStock: false
-    },
-    {
-      id: 3,
-      name: "Gaming Mouse",
-      description: "Ergonomic design with RGB lights",
-      price: 1499,
-      imageUrl: "https://m.media-amazon.com/images/I/61AcT0ZuO3L.jpg",
-      inStock: true
-    },
-      {
-      id: 4,
-      name: "Wireless Headphones",
-      description: "High quality noise cancelling headphones",
-      price: 2999,
-      imageUrl: "https://sony.scene7.com/is/image/sonyglobalsolutions/WH1000XM6_Primary_image_Midnight_Blue?$primaryshotPreset$&fmt=png-alpha",
-      inStock: true
-    },
-    {
-      id: 5,
-      name: "Smart Watch",
-      description: "Track your fitness and notifications",
-      price: 4999,
-      imageUrl: "https://images.unsplash.com/photo-1516570161787-2fd917215a3d",
-      inStock: false
-    },
-    {
-      id: 6,
-      name: "Gaming Mouse",
-      description: "Ergonomic design with RGB lights",
-      price: 1499,
-      imageUrl: "https://m.media-amazon.com/images/I/61AcT0ZuO3L.jpg",
-      inStock: true
-    },
-      {
-      id: 7,
-      name: "Wireless Headphones",
-      description: "High quality noise cancelling headphones",
-      price: 2999,
-      imageUrl: "https://sony.scene7.com/is/image/sonyglobalsolutions/WH1000XM6_Primary_image_Midnight_Blue?$primaryshotPreset$&fmt=png-alpha",
-      inStock: true
-    },
-    {
-      id: 8,
-      name: "Smart Watch",
-      description: "Track your fitness and notifications",
-      price: 4999,
-      imageUrl: "https://images.unsplash.com/photo-1516570161787-2fd917215a3d",
-      inStock: false
-    },
-    {
-      id: 9,
-      name: "Gaming Mouse",
-      description: "Ergonomic design with RGB lights",
-      price: 1499,
-      imageUrl: "https://m.media-amazon.com/images/I/61AcT0ZuO3L.jpg",
-      inStock: true
-    },
-      {
-      id: 10,
-      name: "Wireless Headphones",
-      description: "High quality noise cancelling headphones",
-      price: 2999,
-      imageUrl: "https://sony.scene7.com/is/image/sonyglobalsolutions/WH1000XM6_Primary_image_Midnight_Blue?$primaryshotPreset$&fmt=png-alpha",
-      inStock: true
-    },
-    {
-      id: 11,
-      name: "Smart Watch",
-      description: "Track your fitness and notifications",
-      price: 4999,
-      imageUrl: "https://images.unsplash.com/photo-1516570161787-2fd917215a3d",
-      inStock: false
-    },
-    {
-      id: 12,
-      name: "Gaming Mouse",
-      description: "Ergonomic design with RGB lights",
-      price: 1499,
-      imageUrl: "https://m.media-amazon.com/images/I/61AcT0ZuO3L.jpg",
-      inStock: true
-    }
-  ]
+  useEffect(()=>{
+    fetchProduct()
+  },[])
+
+  const [product,setProduct] = useState([])
+    const [inventory,setInventory] = useState({});
+
+
+  const fetchProduct = async () =>{
+    const res=await getProduct()
+    setProduct(res.data)
+    res.data.forEach(async (p)=> {
+      const inRes= await getInventory(p.id);
+      console.log("Inventory:", inRes.data);
+      setInventory(prev=>({...prev,[p.id]: inRes.data}));
+    });
+
+  };
+
+
 
   return (
     <>
       <Navbar />
-      <ProductList products={products} />
+      <ProductList products={product} inventory={inventory} />
             <Footer />
 
     </>
