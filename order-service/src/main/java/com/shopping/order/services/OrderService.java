@@ -1,11 +1,12 @@
 package com.shopping.order.services;
 
+import com.shopping.order.FeignClient.CartClient;
 import com.shopping.order.FeignClient.InventoryClient;
 import com.shopping.order.FeignClient.ProductClient;
+import com.shopping.order.dto.cartDto.CartResponse;
 import com.shopping.order.dto.feignDto.ProductFeignResponseDto;
 import com.shopping.order.dto.inventoryDto.InventoryActionRequest;
 import com.shopping.order.dto.inventoryDto.InventoryCheckRequest;
-import com.shopping.order.dto.inventoryDto.InventoryCheckResponse;
 import com.shopping.order.dto.orderDto.*;
 import com.shopping.order.dto.orderItemDto.OrderItemsResponseDto;
 import com.shopping.order.enums.InventoryStatus;
@@ -22,13 +23,13 @@ import com.shopping.order.utility.Helper;
 import feign.FeignException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -41,6 +42,7 @@ public class OrderService {
     private final OrderItemsMapper orderItemsMapper;
     private final InventoryClient inventoryClient;
     private final Helper helper;
+    private final CartClient cartClient;
 
     //create order by taking order id and list of product items details
     @Transactional
@@ -166,6 +168,9 @@ public class OrderService {
     public List<OrderResponseDto> fetch_all_orders(Pageable pageable) {
 
         Page<Order> orders = orderRepo.findAll(pageable); // fetch join
+        if(orders==null || orders.getContent()==null){
+            return Collections.singletonList(new OrderResponseDto());
+        }
 
         return orders.stream()
                 .map(order -> OrderResponseDto.builder()
@@ -186,11 +191,25 @@ public class OrderService {
         Order order = orderRepo.findById(order_id)
                 .orElseThrow(() -> new ResourceNotFound("Order not found"));
 
-        if(order.getStatus() != OrderStatus.PENDING){
-            throw new IllegalStateException("Only PENDING orders can change status");
+        OrderStatus current = order.getStatus();
+        OrderStatus newStatus = statusReq.getOrderStatus();
+
+        boolean validTransition = false;
+
+        if(current == OrderStatus.PENDING
+                && newStatus == OrderStatus.PAYMENT_PROCESSING) {
+            validTransition = true;
+        }
+        else if(current == OrderStatus.PAYMENT_PROCESSING
+                && (newStatus == OrderStatus.CONFIRMED
+                || newStatus == OrderStatus.FAILED)) {
+            validTransition = true;
         }
 
-        OrderStatus newStatus = statusReq.getOrderStatus();
+        if(!validTransition){
+            throw new IllegalStateException(
+                    "Invalid transition from " + current + " to " + newStatus);
+        }
 
         try {
 
@@ -223,6 +242,31 @@ public class OrderService {
         order.setStatus(newStatus);
 
         return "Order status updated successfully.";
+    }
+
+
+
+    @Transactional
+    public OrderCreationResponseDto checkout(CheckoutRequest request){
+        CartResponse cartResponse=cartClient.get_cart();
+
+        if(cartResponse.getCart_items().isEmpty()) {
+            throw new IllegalStateException("Cart is empty");
+        }
+        // Convert cart items → OrderRequestDto
+        List<ProductItemsRequestDto> orderItems = cartResponse.getCart_items().stream()
+                .map(item -> new ProductItemsRequestDto(
+                        item.getProductId(),
+                        item.getQuantity()
+                ))
+                .toList();
+
+        OrderRequestDto orderRequest = OrderRequestDto.builder()
+                .userId(1L) // temporary (no user yet)
+                .items(orderItems)
+                .build();
+
+        return createOrder(orderRequest);
     }
 
 

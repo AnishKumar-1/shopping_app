@@ -1,10 +1,7 @@
 package com.shopping.product.services;
-
-import com.shopping.product.dtos.categoryDtos.CategorySummary;
 import com.shopping.product.dtos.productDtos.CreateProductDto;
 import com.shopping.product.dtos.productDtos.ProductResponseDto;
 import com.shopping.product.dtos.productDtos.UpdateProductRepo;
-import com.shopping.product.enums.Status;
 import com.shopping.product.exceptions.DataNotFound;
 import com.shopping.product.mapper.ProductMapper;
 import com.shopping.product.models.Category;
@@ -15,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class ProductService {
@@ -31,11 +27,12 @@ public class ProductService {
     //create product under particular category and return category details too
     public ProductResponseDto createProduct(Long categoryId, CreateProductDto productDto){
        Category category=categoryRepo.findById(categoryId).orElseThrow(()->new DataNotFound("Category not found"));
+
        Product product=productMapper.toProduct(productDto);
+        System.out.println("Image URL inside ENTITY: " + product.getImageUrl());
        product.setCategory(category);
-       product.setStatus(Status.ACTIVE);
        Product result=productRepo.save(product);
-       CategorySummary categorySummary=CategorySummary.builder().id(category.getId()).name(category.getName()).build();
+//       CategorySummary categorySummary=CategorySummary.builder().id(category.getId()).name(category.getName()).build();
         return productMapper.toProductResponseDto(result);
     }
 
@@ -76,6 +73,10 @@ public class ProductService {
       if(request.getPrice() != null){
           product.setPrice(request.getPrice());
       }
+
+        if(request.getImageUrl() != null && !request.getImageUrl().isEmpty()){
+            product.setImageUrl(request.getImageUrl());
+        }
       productRepo.save(product);
 
       return "Product updated successfully.";

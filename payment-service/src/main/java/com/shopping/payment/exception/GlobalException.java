@@ -74,5 +74,19 @@ public class GlobalException {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalState(IllegalStateException exception, HttpServletRequest request){
+        error= ErrorResponse.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Bad Request")
+                .message("Invalid request data")
+                .errorCode("VALIDATION_ERROR")
+                .details(Collections.singletonList(exception.getLocalizedMessage()))
+                .path(request.getRequestURL().toString())
+                .timestamp(LocalDateTime.now()).build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
 
 }

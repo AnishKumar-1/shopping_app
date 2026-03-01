@@ -2,8 +2,8 @@ package com.shopping.product.models;
 
 import com.shopping.product.enums.Status;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -13,11 +13,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.math.BigDecimal;
 import java.time.Instant;
 
+
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @EntityListeners(AuditingEntityListener.class)
 public class Product {
 
@@ -36,6 +36,9 @@ public class Product {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
+    @NotNull
+    @Column(name="img_url",columnDefinition = "TEXT")
+    private String imageUrl;
     @CreatedDate
     @Column(name = "created_at")
     private Instant createdAt;

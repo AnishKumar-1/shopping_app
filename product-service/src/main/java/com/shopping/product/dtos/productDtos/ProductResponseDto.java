@@ -20,6 +20,7 @@ public class ProductResponseDto {
     private String description;
     private BigDecimal price;
     private Status status;
+    private String imageUrl;
     private Instant createdAt;
     private Instant updatedAt;
 }
