@@ -6,6 +6,7 @@ server:
   port: 8082
 
 
+
 eureka:
   client:
     service-url:
@@ -14,3 +15,33 @@ eureka:
     fetch-registry: true
   instance:
     prefer-ip-address: true
+
+
+
+management:
+  endpoint:
+    health:
+      show-details: ALWAYS
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        minimumNumberOfCalls: 5
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+
+    instances:
+      productService:
+        base-config: default
+      inventoryService:
+        base-config: default
+      cartService:
+        base-config: default

@@ -3,6 +3,13 @@ spring:
     name: payment-service
 
 
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+
   jackson:
     mapper:
       accept-case-insensitive-enums: true
@@ -20,3 +27,20 @@ eureka:
     fetch-registry: true
   instance:
     prefer-ip-address: true
+
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        minimumNumberOfCalls: 5
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+
+    instances:
+      cartService:
+        base-config: default
+      OrderService:
+        base-config: default

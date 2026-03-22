@@ -21,10 +21,10 @@ public class OrderController {
 
     //create order by taking user id and items details like product id and its quantity from body
 
-    @PostMapping
-    public ResponseEntity<OrderCreationResponseDto> createOrder(@Valid @RequestBody OrderRequestDto request){
-        return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrder(request));
-    }
+//    @PostMapping
+//    public ResponseEntity<OrderCreationResponseDto> createOrder(@Valid @RequestBody OrderRequestDto request){
+//        return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrder(request));
+//    }
 
     //get order details by its id
     @GetMapping("/{order_id}")

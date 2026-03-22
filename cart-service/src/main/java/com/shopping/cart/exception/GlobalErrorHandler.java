@@ -44,9 +44,6 @@ public class GlobalErrorHandler {
     }
 
 
-
-
-
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<ErrorResponse> handleDuplicateEntry(
             DuplicateResourceException ex, HttpServletRequest request) {
@@ -88,6 +85,18 @@ public class GlobalErrorHandler {
         error.setTimestamp(LocalDateTime.now());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(ServiceUnavailableException.class)
+    public ResponseEntity<ErrorResponse> handleResponseStatusException(ServiceUnavailableException ex, HttpServletRequest request) {
+        ErrorResponse error = new ErrorResponse();
+        error.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
+        error.setError("Service  Unavailable");
+        error.setMessage(ex.getMessage());
+        error.setErrorCode("503");
+        error.setPath(request.getRequestURI());
+        error.setTimestamp(LocalDateTime.now());
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(error);
     }
 
     @ExceptionHandler(Exception.class)
