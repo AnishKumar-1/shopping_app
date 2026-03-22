@@ -4,13 +4,17 @@ import com.shopping.cart.dto.CartItemRequest;
 import com.shopping.cart.dto.CartItemsDto;
 import com.shopping.cart.dto.CartResponse;
 import com.shopping.cart.dto.ProductResponse;
+import com.shopping.cart.exception.ServiceUnavailableException;
 import com.shopping.cart.feignClient.ProductClient;
 import com.shopping.cart.model.CartItem;
 import com.shopping.cart.repository.CartRepo;
 import com.shopping.cart.service.CartService;
 import com.shopping.cart.util.CartUtil;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collections;
 import java.util.List;
@@ -22,6 +26,7 @@ public class CartImplementation implements CartService {
     private final ProductClient productClient;
     private final CartRepo cartRepo;
 
+    @CircuitBreaker(name="productService", fallbackMethod = "productFallback")
     public CartResponse add_to_cart(CartItemRequest request){
         ProductResponse product= productClient.getProduct(request.getProductId());
         CartItem existing = cartRepo
@@ -82,5 +87,15 @@ public class CartImplementation implements CartService {
                                 .imageUrl(items.getImageUrl()).priceAtTime(items.getPriceAtTime()).build()
                         ).toList();
         return CartResponse.builder().cart_items(cartItemsDtos).build();
+    }
+
+
+
+    // fallback must be in same class
+    //add to cart fallback method
+    public CartResponse productFallback(
+            CartItemRequest request,
+            Exception ex) {
+        throw new ServiceUnavailableException("Product service is currently unavailable.");
     }
 }

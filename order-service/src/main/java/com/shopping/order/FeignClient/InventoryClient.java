@@ -12,14 +12,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(name="inventory-service")
 public interface InventoryClient {
 
-    @PostMapping("/api/v1/inventories/check")
+    @PostMapping("/api/v1/inventory/check")
     InventoryStatus checkProductAvailability(@RequestBody InventoryCheckRequest request);
 
-    @PostMapping("/api/v1/inventories/reserve")
+    @PostMapping("/api/v1/inventory/reserve")
     ReserveRequestDto reserve(@RequestBody InventoryActionRequest request);
-    @PostMapping("/api/v1/inventories/confirm")
+    @PostMapping("/api/v1/inventory/confirm")
     ReserveRequestDto confirm(@RequestBody InventoryActionRequest request);
-    @PostMapping("/api/v1/inventories/release")
+    @PostMapping("/api/v1/inventory/release")
     ReserveRequestDto release(@RequestBody InventoryActionRequest request);
 
 }

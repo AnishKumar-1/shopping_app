@@ -17,6 +17,18 @@ public class GlobalException {
 
     ErrorResponse error;
 
+    @ExceptionHandler(ServiceUnavailableException.class)
+    public ResponseEntity<ErrorResponse> handleServiceUnavailable(ServiceUnavailableException ex, HttpServletRequest request) {
+        ErrorResponse error = new ErrorResponse();
+        error.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
+        error.setError("Service  Unavailable");
+        error.setMessage(ex.getMessage());
+        error.setErrorCode("503");
+        error.setPath(request.getRequestURI());
+        error.setTimestamp(LocalDateTime.now());
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(error);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException exception, HttpServletRequest request){
         List<String> argError= exception.getBindingResult().getFieldErrors()
