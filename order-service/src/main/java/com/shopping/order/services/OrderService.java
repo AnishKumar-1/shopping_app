@@ -1,6 +1,5 @@
 package com.shopping.order.services;
 
-import com.shopping.order.FeignClient.CartClient;
 import com.shopping.order.FeignClient.InventoryClient;
 import com.shopping.order.FeignClient.ProductClient;
 import com.shopping.order.dto.cartDto.CartResponse;
@@ -14,6 +13,9 @@ import com.shopping.order.enums.OrderStatus;
 import com.shopping.order.exception.InventoryReservationException;
 import com.shopping.order.exception.OutOfStockException;
 import com.shopping.order.exception.ResourceNotFound;
+import com.shopping.order.integration.CartIntegrationService;
+import com.shopping.order.integration.InventoryIntegrationService;
+import com.shopping.order.integration.ProductIntegrationService;
 import com.shopping.order.mappers.OrderItemsMapper;
 import com.shopping.order.models.Order;
 import com.shopping.order.models.OrderItems;
@@ -38,22 +40,21 @@ public class OrderService {
 
     private final OrderRepo orderRepo;
     private final OrderItemRepo orderItemRepo;
-    private final ProductClient productClient;
     private final OrderItemsMapper orderItemsMapper;
-    private final InventoryClient inventoryClient;
     private final Helper helper;
-    private final CartClient cartClient;
+    private final CartIntegrationService cartIntegrationService;
+    private final InventoryClient inventoryClient;
+    private final InventoryIntegrationService inventoryIntegrationService;
+    private final ProductIntegrationService productIntegrationService;
+
+
 
     //create order by taking order id and list of product items details
     @Transactional
     public OrderCreationResponseDto createOrder(OrderRequestDto orderRequestDto){
 
-//        inventoryClient.checkProductAvailability()
-
         for(ProductItemsRequestDto productItemsRequestDto: orderRequestDto.getItems()){
-            InventoryStatus status = inventoryClient.checkProductAvailability(
-                    new InventoryCheckRequest(productItemsRequestDto.getProductId(),productItemsRequestDto.getQuantity())
-            );
+            InventoryStatus status =inventoryIntegrationService.getInventoryClientStatus(productItemsRequestDto.getProductId(),  productItemsRequestDto.getQuantity());
             if(status  == InventoryStatus.OUT_OF_STOCK){
                 throw new OutOfStockException("Cannot create order some of products are out of stock");
             }
@@ -69,7 +70,7 @@ public class OrderService {
         for (ProductItemsRequestDto productItems : orderRequestDto.getItems()) {
 
             ProductFeignResponseDto productDetails =
-                    productClient.product(productItems.getProductId());
+                    productIntegrationService.getProductFeignResponse(productItems.getProductId());
 
             BigDecimal subTotal = productDetails.getPrice()
                     .multiply(BigDecimal.valueOf(productItems.getQuantity()));
@@ -248,8 +249,7 @@ public class OrderService {
 
     @Transactional
     public OrderCreationResponseDto checkout(CheckoutRequest request){
-        CartResponse cartResponse=cartClient.get_cart();
-
+        CartResponse cartResponse=cartIntegrationService.cartClientFeignResponse();
         if(cartResponse.getCart_items().isEmpty()) {
             throw new IllegalStateException("Cart is empty");
         }

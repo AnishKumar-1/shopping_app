@@ -6,6 +6,36 @@ spring:
       host: localhost
       port: 6379
 
+  datasource:
+    url: jdbc:mysql://localhost:3306/cart_db
+    username: root
+    password: root
+
+  kafka:
+    bootstrap-servers: localhost:9092
+
+    consumer:
+      group-id: cart-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: "*"
+            value:
+              default:
+                type: com.shopping.cart.dto.CartClearEvent
+            use:
+              type:
+                headers: false
+
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
 server:
   port: 8085
 
@@ -16,3 +46,28 @@ eureka:
       defaultZone: http://localhost:8761/eureka
     register-with-eureka: true
     fetch-registry: true
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoint:
+    health:
+      show-details: ALWAYS
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      productService:
+        registerHealthIndicator: true
+        minimumNumberOfCalls: 5
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+
+
+
+
