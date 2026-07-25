@@ -1,12 +1,9 @@
 package com.shopping.payment.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.util.UUID;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Data
-public class CartClearEvent {
-    private Long orderId;
-}
+public record CartClearEvent (
+     UUID eventId,
+     Long orderId
+){}
+

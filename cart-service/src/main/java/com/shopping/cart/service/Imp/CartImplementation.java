@@ -39,14 +39,14 @@ public class CartImplementation implements CartService {
             CartItem cartItem=CartItem.builder().productId(request.getProductId())
                     .productName(product.getName())
                     .quantity(request.getQuantity())
-                    .priceAtTime(product.getPrice())
+                    .price(product.getPrice())
                     .imageUrl(product.getImageUrl()).build();
             cartRepo.save(cartItem);
         }
         List<CartItemsDto> items=cartRepo.findAll().stream().map(cartData->
                 CartItemsDto.builder()
                         .productId(cartData.getProductId()).productName(cartData.getProductName())
-                        .quantity(cartData.getQuantity()).priceAtTime(cartData.getPriceAtTime())
+                        .quantity(cartData.getQuantity()).price(cartData.getPrice())
                         .imageUrl(cartData.getImageUrl()).build()
         ).toList();
 
@@ -84,7 +84,7 @@ public class CartImplementation implements CartService {
                 .stream().map(items->
                         CartItemsDto.builder().productId(items.getProductId())
                                 .productName(items.getProductName()).quantity(items.getQuantity())
-                                .imageUrl(items.getImageUrl()).priceAtTime(items.getPriceAtTime()).build()
+                                .imageUrl(items.getImageUrl()).price(items.getPrice()).build()
                         ).toList();
         return CartResponse.builder().cart_items(cartItemsDtos).build();
     }

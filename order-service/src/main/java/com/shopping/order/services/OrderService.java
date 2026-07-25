@@ -19,6 +19,7 @@ import com.shopping.order.integration.ProductIntegrationService;
 import com.shopping.order.mappers.OrderItemsMapper;
 import com.shopping.order.models.Order;
 import com.shopping.order.models.OrderItems;
+import com.shopping.order.records.PaymentResultEvent;
 import com.shopping.order.repository.OrderItemRepo;
 import com.shopping.order.repository.OrderRepo;
 import com.shopping.order.utility.Helper;
@@ -65,6 +66,7 @@ public class OrderService {
                 .build();
 
         List<OrderItems> orderItems = new ArrayList<>();
+
         BigDecimal totalAmount = BigDecimal.ZERO;
 
         for (ProductItemsRequestDto productItems : orderRequestDto.getItems()) {
@@ -120,6 +122,7 @@ public class OrderService {
                 );
             }
              helper.markOrderFailed(response.getId());
+
             throw new InventoryReservationException("Failed to reserve inventory for order " + response.getId()
             );
         }
@@ -129,9 +132,6 @@ public class OrderService {
                 .status(response.getStatus().name())
                 .build();
     }
-
-
-
 
     @Transactional
     public OrderResponseDto fetch_single_order(Long order_id){
@@ -213,7 +213,6 @@ public class OrderService {
         }
 
         try {
-
             if(newStatus == OrderStatus.CONFIRMED) {
                 order.getOrderItems().forEach(item ->
                         inventoryClient.confirm(
@@ -224,7 +223,6 @@ public class OrderService {
                         )
                 );
             }
-
             if(newStatus == OrderStatus.FAILED) {
                 order.getOrderItems().forEach(item ->
                         inventoryClient.release(
@@ -269,5 +267,18 @@ public class OrderService {
         return createOrder(orderRequest);
     }
 
+
+    public void handlePaymentResult(PaymentResultEvent event) {
+
+        Order order = orderRepo.findById(event.orderId())
+                .orElseThrow();
+
+        if ("SUCCESS".equals(event.status())) {
+            order.setStatus(OrderStatus.CONFIRMED);
+        } else {
+            order.setStatus(OrderStatus.FAILED);
+        }
+        orderRepo.save(order);
+    }
 
 }
