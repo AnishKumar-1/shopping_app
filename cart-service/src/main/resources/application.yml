@@ -1,6 +1,8 @@
 spring:
   application:
     name: cart-service
+  profiles:
+    active: ${ACTIVE_PROFILES:dev}
   data:
     redis:
       host: localhost
@@ -8,8 +10,12 @@ spring:
 
 
   kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    listener:
+      ack-mode: manual
     bootstrap-servers: localhost:9092
-
     consumer:
       group-id: cart-group
       auto-offset-reset: earliest
@@ -22,7 +28,7 @@ spring:
               packages: "*"
             value:
               default:
-                type: com.shopping.cart.dto.CartClearEvent
+                type: com.shopping.cart.events.CartClearEvent
             use:
               type:
                 headers: false

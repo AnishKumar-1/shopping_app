@@ -1,6 +1,8 @@
 spring:
   application:
     name: inventory-service
+  PROFILES:
+    ACTIVE: ${ACTIVE_PROFILES:dev}
 
 server:
   port: 8081

@@ -1,4 +1,5 @@
-package com.shopping.cart.dto;
+package com.shopping.cart.events;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

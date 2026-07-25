@@ -9,6 +9,6 @@ public class CartUtil {
     //cart item to cartITem dto
     public static CartItemsDto cartToCartITemDto(CartItem result){
         return  CartItemsDto.builder().productId(result.getProductId()).productName(result.getProductName())
-                .quantity(result.getQuantity()).priceAtTime(result.getPriceAtTime()).imageUrl(result.getImageUrl()).build();
+                .quantity(result.getQuantity()).price(result.getPrice()).imageUrl(result.getImageUrl()).build();
     }
 }
