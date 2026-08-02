@@ -23,12 +23,14 @@ jobs:
           java-version: 21
           distribution: 'temurin'
 
-      - name: Make mvnw executable
+      - name: Giving maven wrapper(mvnw) permission to execute
         working-directory: inventory-service
         run: chmod +x mvnw
 
       - name: Build & Test
         working-directory: inventory-service
+        env:
+          SPRING_PROFILES_ACTIVE: test
         run: ./mvnw clean test
 
 

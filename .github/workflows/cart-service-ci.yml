@@ -15,18 +15,21 @@ jobs:
     steps:
       - name: Checkout code
       - uses: actions/checkout@v4
+
       - name: Set up JDK 21
-      - uses: actions/setup-java@v4
+        uses: actions/setup-java@v4
         with:
           java-version: 21
           distribution: 'temurin'
 
-      - name: Make mvnw executable
+      - name: Give maven wrapper (mvnw) file permission to execute
         working-directory: cart-service
         run: chmod +x mvnw
 
       - name: Build & Test
         working-directory: cart-service
+        env:
+          SPRING_PROFILES_ACTIVE: test
         run: ./mvnw clean test
 
   build-docker:
@@ -42,7 +45,7 @@ jobs:
           java-version: 21
           distribution: 'temurin'
 
-      - name: Make mvnw executable
+      - name: Give maven wrapper (mvnw) file permission to execute
         working-directory: cart-service
         run: chmod +x mvnw
 

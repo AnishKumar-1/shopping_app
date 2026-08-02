@@ -26,7 +26,8 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<CategoryResponseDto> createCategory(@Valid @RequestBody CreateCategoryDto dto){
+    public ResponseEntity<CategoryResponseDto> createCategory(@Valid @RequestBody CreateCategoryDto dto,@RequestHeader("X-User-Email") String email){
+        System.out.println("Request header data: "+ email);
       return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.createCategory(dto));
     }
     //get category by its id
