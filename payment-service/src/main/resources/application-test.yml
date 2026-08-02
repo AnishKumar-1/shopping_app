@@ -1,9 +1,12 @@
 spring:
-  datasource:
-    url: jdbc:h2:mem:payment_db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    username: root
-    password:
-
+  kafka:
+    bootstrap-servers: dummy:9092
+    listener:
+      auto-startup: false
   jpa:
     hibernate:
       ddl-auto: 'create-drop'
+
+eureka:
+  client:
+    enabled: false

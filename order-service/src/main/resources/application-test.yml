@@ -4,6 +4,15 @@ spring:
     username: root
     password:
 
+  kafka:
+    bootstrap-servers: dummy:9092
+    listener:
+      auto-startup: false
+
   jpa:
     hibernate:
       ddl-auto: 'create-drop'
+
+eureka:
+  client:
+    enabled: false

@@ -19,7 +19,7 @@ public class CartController {
 
     // ================= ADD TO CART =================
     @PostMapping
-    public CartResponse addToCart(@Valid  @RequestBody CartItemRequest request) {
+    public CartResponse addToCart(@Valid @RequestBody CartItemRequest request,@RequestHeader("X-User-Email") String email) {
         return cartService.add_to_cart(request);
     }
 

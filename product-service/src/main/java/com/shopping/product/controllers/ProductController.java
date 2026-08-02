@@ -15,44 +15,44 @@ import java.util.List;
 
 @RestController
 @Validated
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/products")
 public class ProductController {
 
     @Autowired
     private ProductService productService;
 
     //create product
-    @PostMapping("/products/{categoryid}")
+    @PostMapping("/{categoryid}")
     public ResponseEntity<ProductResponse> createProduct(@PathVariable Long categoryid, @RequestBody List<CreateProductDto> productDto){
         return ResponseEntity.status(HttpStatus.CREATED).body(productService.createProduct(categoryid,productDto));
     }
 
     //get product by its id
-    @GetMapping("/product/{productId}")
+    @GetMapping("/{productId}/product")
     public ResponseEntity<ProductResponseDto> product(@PathVariable Long productId){
         return ResponseEntity.status(HttpStatus.OK).body(productService.getProductByItsId(productId));
     }
 
     //list of products
-    @GetMapping("/products")
+    @GetMapping
     public ResponseEntity<List<ProductResponseDto>> products(){
         return ResponseEntity.status(HttpStatus.OK).body(productService.products());
     }
 
     //delete product by its id
-    @DeleteMapping("/product/{productId}")
+    @DeleteMapping("/{productId}")
     public ResponseEntity<String> removeProduct(@PathVariable Long productId){
         return ResponseEntity.status(HttpStatus.OK).body(productService.removeProduct(productId));
     }
 
     //update product by its id and take data from user in json form
-    @PutMapping("/product/{productId}")
+    @PutMapping("/{productId}")
     public ResponseEntity<String> updateProduct(@PathVariable Long productId, @RequestBody UpdateProductRepo request){
         return ResponseEntity.ok(productService.updateProduct(productId,request));
     }
 
     //List of products by category id
-    @GetMapping("/products/{categoryId}/products")
+    @GetMapping("/{categoryId}")
     public ResponseEntity<List<ProductResponseDto>> productsByCategoryId(@PathVariable Long categoryId){
         return ResponseEntity.ok(productService.products(categoryId));
     }

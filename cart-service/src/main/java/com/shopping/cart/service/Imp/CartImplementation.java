@@ -12,6 +12,7 @@ import com.shopping.cart.service.CartService;
 import com.shopping.cart.util.CartUtil;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -21,6 +22,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CartImplementation implements CartService {
 
     private final ProductClient productClient;
@@ -28,7 +30,9 @@ public class CartImplementation implements CartService {
 
     @CircuitBreaker(name="productService", fallbackMethod = "productFallback")
     public CartResponse add_to_cart(CartItemRequest request){
+        System.out.println("inside add to cart method"+ request.getProductId());
         ProductResponse product= productClient.getProduct(request.getProductId());
+        System.out.println("product details:  "+ product);
         CartItem existing = cartRepo
                 .findByProductId(request.getProductId())
                 .orElse(null);
