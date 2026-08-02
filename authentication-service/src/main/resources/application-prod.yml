@@ -21,3 +21,8 @@ eureka:
 
   instance:
     prefer-ip-address: true
+
+
+jwt:
+  secret:
+    key: ${SECRET_KEY}
