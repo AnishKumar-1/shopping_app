@@ -24,14 +24,14 @@ jobs:
           distribution: 'temurin'
 
       - name: Giving maven wrapper(mvnw) permission to execute
-      - working-directory: payment-service
-      - run: chmod +x mvnw
+        working-directory: payment-service
+        run: chmod +x mvnw
 
       - name: Build and Test
-      - working-directory: payment-service
+        working-directory: payment-service
         env:
           SPRING_PROFILE_ACTIVE: test
-      - run: ./mvn clean test
+        run: ./mvnw clean test
 
   build-docker:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -39,19 +39,19 @@ jobs:
 
     steps:
       - name: Checkout code
-      - uses: actions/checkout@v4
+        uses: actions/checkout@v4
 
       - name: Set up JDK 21
-      - uses: actions/setup-java@v4
+        uses: actions/setup-java@v4
 
       - name: Make mvnw executable
-      - working-directory: payment-service
-      - run: chmod +x mvnw
+        working-directory: payment-service
+        run: chmod +x mvnw
 
       - name: Build JAR
-      - working-directory: payment-service
-      - run: ./mvnw clean package
+        working-directory: payment-service
+        run: ./mvnw clean package
 
       - name: Build docker image
-      - working-directory: order-service
-      - run: docker build -t order-service:latest .
+        working-directory: order-service
+        run: docker build -t order-service:latest .
