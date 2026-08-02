@@ -11,6 +11,7 @@ spring:
 
   jpa:
     hibernate:
+      database-platform: org.hibernate.dialect.H2Dialect
       ddl-auto: 'create-drop'
 
 eureka:
