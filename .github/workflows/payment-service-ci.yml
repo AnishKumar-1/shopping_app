@@ -18,17 +18,19 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up jdk 21
-      - uses: actions/setup-java@v4
+        uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Make mvnw executable
+      - name: Giving maven wrapper(mvnw) permission to execute
       - working-directory: payment-service
       - run: chmod +x mvnw
 
       - name: Build and Test
       - working-directory: payment-service
+        env:
+          SPRING_PROFILE_ACTIVE: test
       - run: ./mvn clean test
 
   build-docker:

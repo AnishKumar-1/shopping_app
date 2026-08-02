@@ -1,6 +1,7 @@
 package com.shopping.product.controllers;
 
 import com.shopping.product.dtos.categoryDtos.CategoryResponseDto;
+import com.shopping.product.dtos.categoryDtos.CategoryResult;
 import com.shopping.product.dtos.categoryDtos.CategoryUpdateDto;
 import com.shopping.product.dtos.categoryDtos.CreateCategoryDto;
 import com.shopping.product.services.CategoryService;
@@ -12,19 +13,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Validated
 @RequestMapping("/api/v1/categories")
-@CrossOrigin(origins = "http://localhost:5173/")
 public class CategoryController {
 
     @Autowired
     private CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<CategoryResponseDto> createCategory(@Valid @RequestBody CreateCategoryDto dto){
+    public ResponseEntity<CategoryResponseDto> createCategory(@Valid @RequestBody CreateCategoryDto dto,@RequestHeader("X-User-Email") String email){
+        System.out.println("Request header data: "+ email);
       return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.createCategory(dto));
     }
     //get category by its id
@@ -35,8 +38,10 @@ public class CategoryController {
 
     //list all category data
     @GetMapping
-    public ResponseEntity<List<CategoryResponseDto>> allCategories(){
-        return ResponseEntity.ok(categoryService.categories());
+    public ResponseEntity<CategoryResult> allCategories(){
+        CategoryResult result=new CategoryResult();
+        result.setCategories(categoryService.categories());
+        return ResponseEntity.ok(result);
     }
 
     //delete category by its id

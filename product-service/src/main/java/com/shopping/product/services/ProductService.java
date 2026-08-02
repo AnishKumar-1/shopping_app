@@ -6,6 +6,7 @@ import com.shopping.product.exceptions.DataNotFound;
 import com.shopping.product.mapper.ProductMapper;
 import com.shopping.product.models.Category;
 import com.shopping.product.models.Product;
+import com.shopping.product.records.products.ProductResponse;
 import com.shopping.product.repositories.CategoryRepo;
 import com.shopping.product.repositories.ProductRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,15 +26,16 @@ public class ProductService {
 
 
     //create product under particular category and return category details too
-    public ProductResponseDto createProduct(Long categoryId, CreateProductDto productDto){
-       Category category=categoryRepo.findById(categoryId).orElseThrow(()->new DataNotFound("Category not found"));
+    public ProductResponse createProduct(Long categoryId, List<CreateProductDto> productDto){
 
-       Product product=productMapper.toProduct(productDto);
-        System.out.println("Image URL inside ENTITY: " + product.getImageUrl());
-       product.setCategory(category);
-       Product result=productRepo.save(product);
+        Category category=categoryRepo.findById(categoryId).orElseThrow(()->new DataNotFound("Category not found"));
+       List<Product> products=productMapper.toProducts(productDto);
+       products.forEach(product->product.setCategory(category));
+
+       List<Product> result=productRepo.saveAll(products);
 //       CategorySummary categorySummary=CategorySummary.builder().id(category.getId()).name(category.getName()).build();
-        return productMapper.toProductResponseDto(result);
+        List<ProductResponseDto> savedProducts=productMapper.toProductsResponseDto(result);
+       return new ProductResponse(savedProducts);
     }
 
     //get product by passing its id

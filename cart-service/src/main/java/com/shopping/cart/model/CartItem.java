@@ -23,6 +23,6 @@ public class CartItem  {
     private String productName;
     @Column(name="img_url",columnDefinition = "TEXT")
     private String imageUrl;
-    private BigDecimal priceAtTime;
+    private BigDecimal price;
     private Integer quantity;
 }

@@ -12,6 +12,7 @@ import com.shopping.cart.service.CartService;
 import com.shopping.cart.util.CartUtil;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -21,6 +22,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CartImplementation implements CartService {
 
     private final ProductClient productClient;
@@ -28,7 +30,9 @@ public class CartImplementation implements CartService {
 
     @CircuitBreaker(name="productService", fallbackMethod = "productFallback")
     public CartResponse add_to_cart(CartItemRequest request){
+        System.out.println("inside add to cart method"+ request.getProductId());
         ProductResponse product= productClient.getProduct(request.getProductId());
+        System.out.println("product details:  "+ product);
         CartItem existing = cartRepo
                 .findByProductId(request.getProductId())
                 .orElse(null);
@@ -39,14 +43,14 @@ public class CartImplementation implements CartService {
             CartItem cartItem=CartItem.builder().productId(request.getProductId())
                     .productName(product.getName())
                     .quantity(request.getQuantity())
-                    .priceAtTime(product.getPrice())
+                    .price(product.getPrice())
                     .imageUrl(product.getImageUrl()).build();
             cartRepo.save(cartItem);
         }
         List<CartItemsDto> items=cartRepo.findAll().stream().map(cartData->
                 CartItemsDto.builder()
                         .productId(cartData.getProductId()).productName(cartData.getProductName())
-                        .quantity(cartData.getQuantity()).priceAtTime(cartData.getPriceAtTime())
+                        .quantity(cartData.getQuantity()).price(cartData.getPrice())
                         .imageUrl(cartData.getImageUrl()).build()
         ).toList();
 
@@ -84,7 +88,7 @@ public class CartImplementation implements CartService {
                 .stream().map(items->
                         CartItemsDto.builder().productId(items.getProductId())
                                 .productName(items.getProductName()).quantity(items.getQuantity())
-                                .imageUrl(items.getImageUrl()).priceAtTime(items.getPriceAtTime()).build()
+                                .imageUrl(items.getImageUrl()).price(items.getPrice()).build()
                         ).toList();
         return CartResponse.builder().cart_items(cartItemsDtos).build();
     }

@@ -3,6 +3,7 @@ package com.shopping.product.controllers;
 import com.shopping.product.dtos.productDtos.CreateProductDto;
 import com.shopping.product.dtos.productDtos.ProductResponseDto;
 import com.shopping.product.dtos.productDtos.UpdateProductRepo;
+import com.shopping.product.records.products.ProductResponse;
 import com.shopping.product.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,8 +15,7 @@ import java.util.List;
 
 @RestController
 @Validated
-@RequestMapping("/api/v1/product")
-@CrossOrigin(origins = "http://localhost:5173/")
+@RequestMapping("/api/v1/products")
 public class ProductController {
 
     @Autowired
@@ -23,12 +23,12 @@ public class ProductController {
 
     //create product
     @PostMapping("/{categoryid}")
-    public ResponseEntity<ProductResponseDto> createProduct(@PathVariable Long categoryid, @RequestBody CreateProductDto productDto){
+    public ResponseEntity<ProductResponse> createProduct(@PathVariable Long categoryid, @RequestBody List<CreateProductDto> productDto){
         return ResponseEntity.status(HttpStatus.CREATED).body(productService.createProduct(categoryid,productDto));
     }
 
     //get product by its id
-    @GetMapping("/{productId}")
+    @GetMapping("/{productId}/product")
     public ResponseEntity<ProductResponseDto> product(@PathVariable Long productId){
         return ResponseEntity.status(HttpStatus.OK).body(productService.getProductByItsId(productId));
     }
@@ -52,7 +52,7 @@ public class ProductController {
     }
 
     //List of products by category id
-    @GetMapping("/{categoryId}/products")
+    @GetMapping("/{categoryId}")
     public ResponseEntity<List<ProductResponseDto>> productsByCategoryId(@PathVariable Long categoryId){
         return ResponseEntity.ok(productService.products(categoryId));
     }

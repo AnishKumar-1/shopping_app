@@ -1,11 +1,14 @@
 package com.shopping.payment.services;
 
+import com.shopping.payment.Events.CartEventProducer;
+import com.shopping.payment.Events.PaymentEventProducer;
 import com.shopping.payment.dto.*;
 import com.shopping.payment.enums.OrderStatus;
 import com.shopping.payment.enums.PaymentStatus;
 import com.shopping.payment.exception.ResourceNotFoundException;
 import com.shopping.payment.integration.OrderIntegrationService;
 import com.shopping.payment.modules.Payment;
+import com.shopping.payment.records.PaymentResultEvent;
 import com.shopping.payment.repository.PaymentRepo;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +26,7 @@ public class PaymentService {
     private final PaymentRepo paymentRepo;
     private final OrderIntegrationService orderIntegrationService;
     private final CartEventProducer cartEventProducer;
+    private final PaymentEventProducer paymentEventProducer;
 
     // create payment after order creation
     @Transactional
@@ -80,23 +85,25 @@ public class PaymentService {
         if(paymentSuccess){
             log.info("✅ Updating order status to CONFIRMED for orderId: {}",
                     orderResponse.getOrderId());
-
-            orderIntegrationService.updateOrderStatus(
-                    new UpdateOrderStatusRequest(OrderStatus.CONFIRMED),
-                    orderResponse.getOrderId()
+            //replaced with kafka for the updation of order if service is down then later should be update
+            PaymentResultEvent peymentEvent=new PaymentResultEvent(
+                    UUID.randomUUID(),
+                    response.getPaymentId(),
+                    response.getOrderId(),
+                    OrderStatus.CONFIRMED.name()
             );
-
-
-            CartClearEvent event = new CartClearEvent();
-            event.setOrderId(orderResponse.getOrderId());
-
+            paymentEventProducer.sendPaymentResult(peymentEvent);
+            CartClearEvent event = new CartClearEvent(UUID.randomUUID(),orderResponse.getOrderId());
             cartEventProducer.sendCartClearEvent(event);
 
         } else {
 
-            orderIntegrationService.updateOrderStatus(
-                    new UpdateOrderStatusRequest(OrderStatus.FAILED),
-                    orderResponse.getOrderId()
+            //on failed should also update the order service via kafka event
+            PaymentResultEvent peymentEvent=new PaymentResultEvent(
+                    UUID.randomUUID(),
+                    response.getPaymentId(),
+                    response.getOrderId(),
+                    OrderStatus.FAILED.name()
             );
         }
 
