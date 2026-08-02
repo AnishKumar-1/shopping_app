@@ -7,11 +7,8 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
-    show-sql: false
-    properties:
-      hibernate:
-        format_sql: false
+      database-platform: org.hibernate.dialect.H2Dialect
+      ddl-auto: 'create-drop'
 
 eureka:
   client:
