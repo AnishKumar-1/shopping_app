@@ -5,9 +5,13 @@ on:
     branches:
       - develop
       - main
+    paths:
+      - 'order-service/**'
   push:
     branches:
       - main
+    paths:
+      - 'order-service/**'
 
 jobs:
   build-test:

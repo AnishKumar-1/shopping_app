@@ -4,9 +4,13 @@ on:
     branches:
       - develop
       - main
+    paths:
+      - 'gateway-service/**'
   push:
     branches:
       - main
+    paths:
+      - 'gateway-service/**'
 
 jobs:
   build-test:

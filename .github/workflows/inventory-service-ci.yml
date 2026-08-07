@@ -5,9 +5,13 @@ on:
     branches:
       - develop
       - main
+    paths:
+      - 'inventory-service/**'
   push:
     branches:
       - main
+    paths:
+      - 'inventory-service/**'
 
 jobs:
   build-test:
