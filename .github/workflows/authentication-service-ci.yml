@@ -4,9 +4,13 @@ on:
     branches:
       - develop
       - main
+    paths:
+      - 'authentication-service/**'
   push:
     branches:
       - main
+    paths:
+      - 'authentication-service/**'
 
 jobs:
   build-test:

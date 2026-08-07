@@ -4,9 +4,13 @@ on:
     branches:
       - develop
       - main
+    paths:
+      - 'cart-service/**'
   push:
     branches:
       - main
+    paths:
+      - 'cart-service/**'
 
 jobs:
   build-test:
