@@ -7,7 +7,7 @@ on:
       - main
     paths:
       - 'eureka-server/**'
-      - '.github/workflows/eureka-server.yml'
+      - '.github/workflows/eureka-server-ci.yml'
 
   push:
     branches:
