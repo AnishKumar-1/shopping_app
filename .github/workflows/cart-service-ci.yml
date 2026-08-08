@@ -1,32 +1,55 @@
-name: CART SERVICE CI
+name: CART-SERVICE
+
 on:
   pull_request:
     branches:
       - develop
       - main
-    paths:
-      - 'cart-service/**'
+
   push:
     branches:
       - main
     paths:
       - 'cart-service/**'
+      - '.github/workflows/cart-service-ci.yml'
 
 jobs:
-  build-test:
-    if: github.event_name == 'pull_request'
+
+  check-changes:
     runs-on: ubuntu-latest
+
+    outputs:
+      cart: ${{ steps.filter.outputs.cart }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      - name: Check changed services
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            cart:
+              - 'cart-service/**'
+              - '.github/workflows/cart-service-ci.yml'
+
+  cart-build-test:
+    if: github.event_name == 'pull_request' && needs.check-changes.outputs.cart == 'true'
+    needs: check-changes
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set Up JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: 21
+          java-version: '21'
           distribution: 'temurin'
 
-      - name: Give maven wrapper (mvnw) file permission to execute
+      - name: Give maven wrapper permission
         working-directory: cart-service
         run: chmod +x mvnw
 
@@ -37,19 +60,20 @@ jobs:
         run: ./mvnw clean test
 
   build-docker:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Set up JDK 21
+
+      - name: Set Up JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: 21
+          java-version: '21'
           distribution: 'temurin'
 
-      - name: Give maven wrapper (mvnw) file permission to execute
+      - name: Give maven wrapper permission
         working-directory: cart-service
         run: chmod +x mvnw
 
@@ -57,6 +81,23 @@ jobs:
         working-directory: cart-service
         run: ./mvnw clean package
 
-      - name: Build image
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to AWS ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push Docker Image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: cart_service
+          IMAGE_TAG: latest
         working-directory: cart-service
-        run: docker build -t cart-service:latest .
+        run: |
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
