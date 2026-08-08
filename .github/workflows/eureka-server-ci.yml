@@ -40,7 +40,8 @@ jobs:
         run: ./mvnw clean test
 
   build-docker:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # TEMPORARY: allow us to test ECR from current branch
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
 
     steps:
@@ -61,6 +62,26 @@ jobs:
         working-directory: eureka-server
         run: ./mvnw clean package
 
-      - name: Build Docker Image
+      # Authenticate GitHub Actions with AWS
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # Login Docker to ECR
+      - name: Login to AWS ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # Build and push image
+      - name: Build and Push Docker Image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: eureka_server
+          IMAGE_TAG: latest
         working-directory: eureka-server
-        run: docker build -t eureka-server:latest .
+        run: |
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
