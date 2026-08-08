@@ -7,6 +7,7 @@ on:
       - main
     paths:
       - 'eureka-server/**'
+      - '.github/workflows/eureka-server.yml'
 
   push:
     branches:
@@ -15,7 +16,7 @@ on:
       - 'eureka-server/**'
 
 jobs:
-  build-test:
+  eureka-build-test:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
 
