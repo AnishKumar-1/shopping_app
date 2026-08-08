@@ -34,7 +34,7 @@ jobs:
       - name: Build and Test
         working-directory: payment-service
         env:
-          SPRING_PROFILE_ACTIVE: test
+          SPRING_PROFILES_ACTIVE: test
         run: ./mvnw clean test
 
   build-docker:
@@ -57,5 +57,5 @@ jobs:
         run: ./mvnw clean package
 
       - name: Build docker image
-        working-directory: order-service
-        run: docker build -t order-service:latest .
+        working-directory: payment-service
+        run: docker build -t payment-service:latest .
