@@ -5,10 +5,14 @@ on:
     branches:
       - develop
       - main
+    paths:
+      - 'eureka-server/**'
 
   push:
     branches:
       - main
+    paths:
+      - 'eureka-server/**'
 
 jobs:
   build-test:
