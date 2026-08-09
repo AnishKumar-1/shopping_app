@@ -44,7 +44,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set Up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
@@ -68,7 +68,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set Up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
@@ -79,7 +79,7 @@ jobs:
 
       - name: Build JAR
         working-directory: gateway-service
-        run: ./mvnw clean package
+        run: ./mvnw clean package -DskipTests
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
