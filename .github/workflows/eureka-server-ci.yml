@@ -97,7 +97,7 @@ jobs:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: shopping-eureka
           IMAGE_TAG: latest
-        working-directory: eureka_server
+        working-directory: eureka-server
         run: |
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
