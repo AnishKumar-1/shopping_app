@@ -95,9 +95,9 @@ jobs:
       - name: Build and Push Docker Image
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: eureka_server
+          REPOSITORY: shopping-eureka
           IMAGE_TAG: latest
-        working-directory: shopping-eureka
+        working-directory: eureka_server
         run: |
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
