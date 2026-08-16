@@ -95,7 +95,7 @@ jobs:
       - name: Build and Push Docker Image
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: authentication_service
+          REPOSITORY: shopping-authentication
           IMAGE_TAG: latest
         working-directory: authentication-service
         run: |

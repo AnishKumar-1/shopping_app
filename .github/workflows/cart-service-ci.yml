@@ -95,7 +95,7 @@ jobs:
       - name: Build and Push Docker Image
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: cart_service
+          REPOSITORY: shopping-cart
           IMAGE_TAG: latest
         working-directory: cart-service
         run: |

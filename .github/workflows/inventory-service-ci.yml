@@ -95,7 +95,7 @@ jobs:
       - name: Build and Push Docker Image
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: inventory_service
+          REPOSITORY: shopping-inventory
           IMAGE_TAG: latest
         working-directory: inventory-service
         run: |
