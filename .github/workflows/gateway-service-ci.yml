@@ -95,7 +95,7 @@ jobs:
       - name: Build and Push Docker Image
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: gateway_service
+          REPOSITORY: shopping-gateway
           IMAGE_TAG: latest
         working-directory: gateway-service
         run: |
