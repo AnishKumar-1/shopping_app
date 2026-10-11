@@ -40,7 +40,7 @@ public class SecurityConfig {
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         return http.csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchange->
-                        exchange.pathMatchers(
+                        exchange.pathMatchers("/actuator/health",
                                 "/api/auth/**").permitAll()// or .hasAnyRole("USER", "ADMIN")
                                 // Categories - Admin Only
                                 .pathMatchers(HttpMethod.POST, "/api/v1/categories/**")
