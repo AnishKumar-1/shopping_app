@@ -112,3 +112,22 @@ resource "aws_vpc_endpoint" "cloudwatch_logs" {
     Name = "shopping-app-cloudwatch-logs-endpoint"
   }
 }
+
+resource "aws_vpc_endpoint" "secret_manager" {
+  vpc_id            = aws_vpc.main.id
+  service_name      = "com.amazonaws.ap-south-1.secretsmanager"
+  vpc_endpoint_type = "Interface"
+
+  subnet_ids = [
+    aws_subnet.private.id,
+    aws_subnet.private_2.id
+  ]
+  security_group_ids = [
+    aws_security_group.vpc_endpoint.id
+  ]
+  private_dns_enabled = true
+
+  tags = {
+    Name = "shopping-app-secrets-manager-endpoint"
+  }
+}

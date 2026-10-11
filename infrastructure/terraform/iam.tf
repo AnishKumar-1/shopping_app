@@ -58,3 +58,29 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution" {
   # The IAM Role that receives the permissions
   role = aws_iam_role.ecs_task_execution.name
 }
+
+resource "aws_iam_role_policy" "ecs_secrets_manager" {
+  name = "shopping-ecs-secrets-manager"
+
+  role = aws_iam_role.ecs_task_execution.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [
+      {
+        Effect = "Allow"
+
+        Action = [
+          "secretsmanager:GetSecretValue"
+        ]
+
+        Resource = [
+          aws_secretsmanager_secret.jwt_secret.arn,
+          aws_db_instance.mysql.master_user_secret[0].secret_arn
+        ]
+
+      }
+    ]
+  })
+}
