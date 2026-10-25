@@ -1,3 +1,4 @@
+
 spring:
   application:
     name: gateway-service
@@ -6,6 +7,10 @@ spring:
     active: ${SPRING_PROFILES_ACTIVE:dev}
 
   cloud:
+    inetutils:
+      preferred-networks:
+        - '^10\.'
+
     gateway:
       server:
         webflux:
@@ -56,5 +61,3 @@ management:
 
 server:
   port: 9090
-
-
