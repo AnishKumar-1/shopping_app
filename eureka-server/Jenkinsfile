@@ -13,15 +13,16 @@ pipeline{
       }
       stage('Build and Test') {
           steps {
+             dir('eureka-server'){
              bat 'mvn clean test'
+             }
           }
       }
-      stage('Archive Artifact') {
-         steps {
-         // Archives the compiled target jar file
-         archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
-         }
-      }
+    stage('Archive Artifact') {
+        steps {
+            archiveArtifacts artifacts: 'eureka-server/target/*.jar', fingerprint: true
+        }
+    }
 
     }
 }
