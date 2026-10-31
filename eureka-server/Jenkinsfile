@@ -14,7 +14,7 @@ pipeline{
       stage('Build and Test') {
           steps {
              dir('eureka-server'){
-             bat 'mvn clean test'
+               bat 'mvn clean package'
              }
           }
       }
