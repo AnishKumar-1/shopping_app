@@ -2,6 +2,8 @@ package com.shopping.gateway.jwtException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shopping.gateway.dto.ErrorResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,6 +22,7 @@ import java.util.Map;
 public class JwtAuthenticationEntryPoint
         implements ServerAuthenticationEntryPoint {
 
+    private final static Logger logger= LoggerFactory.getLogger(JwtAuthenticationEntryPoint.class);
     private final ObjectMapper objectMapper;
     public JwtAuthenticationEntryPoint(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
@@ -40,9 +43,9 @@ public class JwtAuthenticationEntryPoint
 
             errorCode = "AUTH_TOKEN_MISSING";
             message = "Authentication required. Please login.";
-
+            logger.error("AUTH_TOKEN_MISSING");
         } else {
-
+            logger.error("AUTH TOKEN INVALID");
             errorCode = "AUTH_TOKEN_INVALID";
             message = "Invalid or expired authentication token.";
         }

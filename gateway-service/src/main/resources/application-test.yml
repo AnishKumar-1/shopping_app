@@ -2,7 +2,6 @@ eureka:
   client:
     enabled: false
 
-
 jwt:
   secret:
     key: akjflaiohpiweljajdnakhfjhaijdfkjwhjefopkkjafjpo

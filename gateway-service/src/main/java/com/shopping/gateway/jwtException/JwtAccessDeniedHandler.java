@@ -1,5 +1,7 @@
 package com.shopping.gateway.jwtException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
@@ -17,6 +19,7 @@ public class JwtAccessDeniedHandler
         implements ServerAccessDeniedHandler {
 
     private final ObjectMapper objectMapper;
+    private final static Logger logger = LoggerFactory.getLogger(JwtAccessDeniedHandler.class);
 
     public JwtAccessDeniedHandler(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
@@ -40,6 +43,7 @@ public class JwtAccessDeniedHandler
         try {
 
             byte[] bytes = objectMapper.writeValueAsBytes(body);
+            logger.error("Access Denied");
 
             return response.writeWith(
                     Mono.just(response.bufferFactory().wrap(bytes))

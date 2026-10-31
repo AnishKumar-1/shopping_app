@@ -86,6 +86,16 @@ resource "aws_vpc_security_group_ingress_rule" "gateway_from_alb" {
   description                  = "Allow ALB to access gateway"
 }
 
+#Allow ECS Service to communicate with Eureka on port 8761
+resource "aws_vpc_security_group_ingress_rule" "eureka_from_ecs" {
+  ip_protocol       = "tcp"
+  security_group_id = aws_security_group.ecs.id
+  referenced_security_group_id = aws_security_group.ecs.id
+  from_port = 8761
+  to_port = 8761
+  description = "Allow ECS tasks to connect to Eureka"
+}
+
 # //allow traffic from ALB to ECS only the route
 # resource "aws_vpc_security_group_ingress_rule" "ecs_from_alb" {
 #   ip_protocol                  = "tcp"

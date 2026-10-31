@@ -9,7 +9,13 @@ server:
   port: 8084
 
 
+  jpa:
+    hibernate:
+      ddl-auto: none
 
+jwt:
+  secret:
+    key: ${SECRET_KEY}
 
 
 
