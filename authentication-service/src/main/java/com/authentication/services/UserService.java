@@ -10,6 +10,8 @@ import com.authentication.records.login.LoginResponse;
 import com.authentication.records.register.RegisterResponse;
 import com.authentication.repository.RoleRepo;
 import com.authentication.repository.UserRepo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,6 +26,7 @@ import java.util.Set;
 @Service
 public class UserService {
 
+    private final static Logger logger = LoggerFactory.getLogger(UserService.class);
     private final PasswordEncoder passwordEncoder;
     private UserRepo userRepo;
     private final AuthenticationManager authenticationManager;
@@ -47,7 +50,7 @@ public class UserService {
     public RegisterResponse registerUser(UserRegisterRequest userRegisterRequest) {
 
         if (userRepo.existsByEmail(userRegisterRequest.getEmail())) {
-
+            logger.error("Email already exists. Please login.");
             throw new IllegalArgumentException("You are already registered with this account: " + userRegisterRequest.getEmail());
         }
 
@@ -65,6 +68,7 @@ public class UserService {
                 .build();
 
         userRepo.save(register);
+        logger.info("User registered successfully");
         return new RegisterResponse("Registered Successfully.");
     }
 
@@ -73,6 +77,7 @@ public class UserService {
     public LoginResponse loginUser(UserLoginRequest request){
         Optional<UserModel> user=userRepo.findByEmail(request.getEmail());
         if(!user.isPresent()){
+            logger.error("Invalid email or password. Please try again.");
             throw new UserNotFound("User Not Found with this email: "+ request.getEmail());
         }
 // 1. Delegate authentication & password check to AuthenticationManager
@@ -87,6 +92,7 @@ public class UserService {
 
         // 2. If valid, generate JWT Token
         String token = jwtUtils.generateToken(authentication);
+        logger.info("Token generated successfully");
         // 5. Return complete LoginResponse
         return new LoginResponse(
                 userModel.getId(),

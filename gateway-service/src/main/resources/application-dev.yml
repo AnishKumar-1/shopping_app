@@ -1,20 +1,3 @@
-spring:
-  cloud:
-    gateway:
-      globalcors:
-        cors-configurations:
-          '[/**]':
-            allowedOrigins:
-              - "http://localhost:5173"
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
-              - OPTIONS
-            allowedHeaders: "*"
-
-
 eureka:
   client:
     service-url:
@@ -25,7 +8,3 @@ eureka:
   instance:
     prefer-ip-address: true
 
-
-jwt:
-  secret:
-    key: ${SECRET_KEY}

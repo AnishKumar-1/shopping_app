@@ -1,0 +1,27 @@
+pipeline{
+    agent any
+    tools {
+        jdk 'jdk-21'
+        maven 'maven-3'
+    }
+    stages {
+      stage('Checkout Code') {
+        steps {
+       // Pulls the latest code from your GitHub repository
+       checkout scm
+       }
+      }
+      stage('Build and Test') {
+          steps {
+             bat 'mvn clean test'
+          }
+      }
+      stage('Archive Artifact') {
+         steps {
+         // Archives the compiled target jar file
+         archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+         }
+      }
+
+    }
+}

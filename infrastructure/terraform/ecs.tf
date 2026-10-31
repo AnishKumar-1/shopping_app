@@ -28,6 +28,8 @@ resource "aws_ecs_task_definition" "eureka" {
 
   # IAM role ECS uses to pull the image from ECR
   execution_role_arn = aws_iam_role.ecs_task_execution.arn
+  # IAM role that provides permissions to the running container
+  task_role_arn = aws_iam_role.ecs_task_role.arn
 
   # Container configuration
   container_definitions = jsonencode([
@@ -107,8 +109,10 @@ resource "aws_ecs_service" "eureka" {
   cluster = aws_ecs_cluster.main.id
   # Task Definition that describes how to run Eureka
   task_definition = aws_ecs_task_definition.eureka.arn
+  #Enable eureka serivce exec
+  enable_execute_command = true
   # Keep 1 Eureka task running
-  desired_count = 1
+  desired_count = 0
   # Use AWS Fargate to run the task
   launch_type = "FARGATE"
   # Network configuration for the ECS task
@@ -196,6 +200,7 @@ resource "aws_ecs_task_definition" "gateway" {
   memory = "512"
   # IAM role ECS uses to pull the image from ECR
   execution_role_arn = aws_iam_role.ecs_task_execution.arn
+  task_role_arn = aws_iam_role.ecs_task_role.arn
   # Container configuration
   container_definitions = jsonencode([
     {
@@ -221,6 +226,10 @@ resource "aws_ecs_task_definition" "gateway" {
         {
           name  = "EUREKA_URL"
           value = "http://eureka.shopping.local:8761/eureka/"
+        },
+        {
+          name  = "SPRING_PROFILES_ACTIVE"
+          value = "prod"
         }
       ]
 
@@ -258,7 +267,7 @@ resource "aws_ecs_service" "gateway" {
   # Task Definition that describes how to run gateway
   task_definition = aws_ecs_task_definition.gateway.arn
   # Keep 1 Eureka task running
-  desired_count = 1
+  desired_count = 0
   # Use AWS Fargate to run the task
   launch_type = "FARGATE"
   # Network configuration for the ECS task
@@ -368,7 +377,7 @@ resource "aws_ecs_service" "authentication" {
   name            = "shopping-authentication-service"
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.authentication.arn
-  desired_count   = 1
+  desired_count   = 0
   launch_type     = "FARGATE"
   network_configuration {
     subnets = [
