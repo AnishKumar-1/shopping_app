@@ -5,10 +5,6 @@ spring:
     password: ${DB_PASSWORD}
     driver-class-name: ${DB_DRIVER_CLASS_NAME}
 
-  jpa:
-    hibernate:
-      ddl-auto: none
-
   flyway:
     enabled: true
 
@@ -16,14 +12,8 @@ eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_URL}
-
     register-with-eureka: true
     fetch-registry: true
-
   instance:
     prefer-ip-address: true
 
-
-jwt:
-  secret:
-    key: ${SECRET_KEY}

@@ -84,3 +84,50 @@ resource "aws_iam_role_policy" "ecs_secrets_manager" {
     ]
   })
 }
+
+
+
+
+# Role assumed by the ECS task
+resource "aws_iam_role" "ecs_task_role" {
+  name = "shopping-app-ecs-task-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+
+  tags = {
+    Name = "shopping-app-ecs-task-role"
+  }
+}
+
+# Permissions required for ECS Exec
+resource "aws_iam_role_policy" "ecs_exec" {
+  name = "shopping-app-ecs-exec"
+  role = aws_iam_role.ecs_task_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ssmmessages:CreateControlChannel",
+          "ssmmessages:CreateDataChannel",
+          "ssmmessages:OpenControlChannel",
+          "ssmmessages:OpenDataChannel"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}

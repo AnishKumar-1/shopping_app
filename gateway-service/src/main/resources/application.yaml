@@ -1,19 +1,23 @@
-
 spring:
   application:
     name: gateway-service
 
-  profiles:
-    active: ${SPRING_PROFILES_ACTIVE:dev}
-
   cloud:
-    inetutils:
-      preferred-networks:
-        - '^10\.'
-
     gateway:
       server:
         webflux:
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowedOrigins:
+                  - "${FRONTEND_URL}"
+                allowedMethods:
+                  - GET
+                  - POST
+                  - PUT
+                  - DELETE
+                  - OPTIONS
+                allowedHeaders: "*"
           routes:
             - id: cart-service
               uri: lb://CART-SERVICE
@@ -40,7 +44,7 @@ spring:
               predicates:
                 - Path=/api/v1/products/**
 
-            - id: product-service
+            - id: product-service-categories
               uri: lb://PRODUCT-SERVICE
               predicates:
                 - Path=/api/v1/categories/**
@@ -50,14 +54,23 @@ spring:
               predicates:
                 - Path=/api/v1/inventory/**
 
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
 management:
   endpoints:
     web:
       exposure:
-        include: health
+        include: "*"
   endpoint:
     health:
       show-details: never
+    gateway:
+      access: unrestricted
 
 server:
   port: 9090
+
+jwt:
+  secret:
+    key: ${SECRET_KEY}

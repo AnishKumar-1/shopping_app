@@ -131,3 +131,25 @@ resource "aws_vpc_endpoint" "secret_manager" {
     Name = "shopping-app-secrets-manager-endpoint"
   }
 }
+
+
+#We are adding the ssmmessages VPC endpoint to fix your ECS Exec connection error (TargetNotConnectedException).
+resource "aws_vpc_endpoint" "ssmmessages" {
+  vpc_id            = aws_vpc.main.id
+  service_name      = "com.amazonaws.ap-south-1.ssmmessages"
+  vpc_endpoint_type = "Interface"
+
+  subnet_ids = [
+    aws_subnet.private.id
+  ]
+
+  security_group_ids = [
+    aws_security_group.vpc_endpoint.id
+  ]
+
+  private_dns_enabled = true
+
+  tags = {
+    Name = "shopping-ssmmessages-endpoint"
+  }
+}
