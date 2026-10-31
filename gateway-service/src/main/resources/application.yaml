@@ -70,7 +70,3 @@ management:
 
 server:
   port: 9090
-
-jwt:
-  secret:
-    key: ${SECRET_KEY}

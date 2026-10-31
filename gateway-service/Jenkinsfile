@@ -1,0 +1,30 @@
+pipeline {
+ agent any
+ tools {
+
+   jdk 'jdk-21'
+   maven 'maven-3'
+}
+stages {
+  stage('Checkout Code') {
+  steps {
+   // Pulls the latest code from your GitHub repository
+         checkout scm
+}
+
+}
+stage('Build and Test') {
+     steps {
+                dir('gateway-service'){
+                  bat 'mvn clean package -Dspring.profiles.active=test'
+                }
+             }
+}
+
+    stage('Archive Artifact') {
+        steps {
+            archiveArtifacts artifacts: 'gateway-service/target/*.jar', fingerprint: true
+        }
+    }
+}
+}
