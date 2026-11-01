@@ -13,10 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 @RestController
 @Validated
 @RequestMapping("/api/v1/categories")
@@ -26,8 +22,7 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<CategoryResponseDto> createCategory(@Valid @RequestBody CreateCategoryDto dto,@RequestHeader("X-User-Email") String email){
-        System.out.println("Request header data: "+ email);
+    public ResponseEntity<CategoryResponseDto> createCategory(@Valid @RequestBody CreateCategoryDto dto){
       return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.createCategory(dto));
     }
     //get category by its id
