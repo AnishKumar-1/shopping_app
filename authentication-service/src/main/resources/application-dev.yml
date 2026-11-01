@@ -3,6 +3,9 @@ spring:
     url: jdbc:mysql://localhost:3306/authentication_db
     username: root
     password: ${DEV_DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: none
 
   flyway:
     enabled: true
