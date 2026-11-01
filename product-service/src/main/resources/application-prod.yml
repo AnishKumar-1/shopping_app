@@ -9,12 +9,12 @@ spring:
     hibernate:
       ddl-auto: none
 
-
-eureka:
-  client:
-    service-url:
-      defaultZone: ${EUREKA_URL}
-    register-with-eureka: true
-    fetch-registry: true
-  instance:
-    prefer-ip-address: true
+#
+#eureka:
+#  client:
+#    service-url:
+#      defaultZone: ${EUREKA_URL}
+#    register-with-eureka: true
+#    fetch-registry: true
+#  instance:
+#    prefer-ip-address: true

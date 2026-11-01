@@ -13,4 +13,11 @@ jwt:
     key: ${SECRET_KEY}
 
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+
 
