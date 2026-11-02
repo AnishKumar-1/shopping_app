@@ -4,10 +4,8 @@ on:
   pull_request:
     branches:
       - develop
-
-  push:
-    branches:
-      - develop
+    paths:
+      - 'product-service/**'
 
 jobs:
   build-and-test:
