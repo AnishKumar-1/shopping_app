@@ -2,9 +2,18 @@ name: Product Service CI/CD
 
 on:
   pull_request:
-    branches: [ "develop" ]
+    branches:
+      - develop
     paths:
       - 'product-service/**'
+
+  push:
+    branches:
+      - develop
+    paths:
+      - 'product-service/**'
+
+  workflow_dispatch:
 
 jobs:
   build-and-test:
