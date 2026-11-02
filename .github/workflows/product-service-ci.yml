@@ -1,0 +1,31 @@
+name: Product Service CI/CD
+on:
+  pull_request:
+    branches: [ "develop" ]
+    paths:
+      - 'product-service/**'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Checkout the repository code
+      - name: Checkout code
+        uses: actions/checkout@v4
+        # 2. Set up Java JDK 21 (matching your tech stack)
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+      # 3. Build and Test using Maven inside the product-service directory
+      - name: Build and Test with Maven
+        working-directory: ./product-service
+        run: mvn clean package -Dspring.profiles.active=test
+      # 4. Archive/Upload Build Artifacts (JAR file)
+      - name: Upload Jar Artifact
+        uses: actions/upload-actifact@v4
+        with:
+          name: product-service-jar
+          path: product-service/target/*.jar
