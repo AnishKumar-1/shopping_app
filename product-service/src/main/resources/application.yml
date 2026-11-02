@@ -8,7 +8,7 @@ spring:
 #server port
 server:
   port: 8089
-#exposure endpoint
+#exposure endpoints
 management:
   endpoints:
     web:
