@@ -4,16 +4,10 @@ on:
   pull_request:
     branches:
       - develop
-    paths:
-      - 'product-service/**'
 
   push:
     branches:
       - develop
-    paths:
-      - 'product-service/**'
-
-  workflow_dispatch:
 
 jobs:
   build-and-test:
@@ -27,15 +21,9 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '21'
-          distribution: 'temurin'
-          cache: 'maven'
+          distribution: temurin
+          cache: maven
 
-      - name: Build and Test with Maven
+      - name: Build and Test
         working-directory: ./product-service
         run: mvn clean package -Dspring.profiles.active=test
-
-      - name: Upload Jar Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: product-service-jar
-          path: product-service/target/*.jar
