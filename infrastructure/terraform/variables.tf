@@ -1,5 +1,9 @@
-variable "aws_region" {
-  description = "AWS region where infrastructure will be created"
+variable "vpc_name" {
+  description = "Name of VPC"
   type        = string
-  default     = "ap-south-1"
+}
+
+variable "vpc_cidr" {
+  description = "IP Address range of our VPC"
+  type        = string
 }
