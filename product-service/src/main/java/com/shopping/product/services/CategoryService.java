@@ -8,6 +8,8 @@ import com.shopping.product.exceptions.DuplicateResourceException;
 import com.shopping.product.mapper.CategoryMapper;
 import com.shopping.product.models.Category;
 import com.shopping.product.repositories.CategoryRepo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,13 +23,18 @@ public class CategoryService {
     private CategoryMapper categoryMapper;
     @Autowired
     private CategoryRepo categoryRepo;
+    private final static Logger logger= LoggerFactory.getLogger(CategoryService.class);
 
     public CategoryResponseDto createCategory(CreateCategoryDto categoryDto) {
         if (categoryRepo.existsByName(categoryDto.getName())) {
+            logger.error("Category already exists with this name {}",  categoryDto.getName());
             throw new DuplicateResourceException("Category name already exists: "+ categoryDto.getName());
+
         }
             Category category = categoryMapper.toEntity(categoryDto);
+            logger.info("Successfully converted categoryDto to category {}", categoryDto.getName());
             Category savedCategory = categoryRepo.save(category);
+            logger.info("Category successfully created with id: {}", savedCategory.getId());
             return categoryMapper.toDto(savedCategory);
     }
 
@@ -35,6 +42,7 @@ public class CategoryService {
     public CategoryResponseDto categoryById(Long id) {
         Optional<Category> category = categoryRepo.findById(id);
             if (category.isEmpty()) {
+                logger.error("Category not found with id {}",  id);
                 throw new DataNotFound("Category not found with this id: "+ id);
         }
         return categoryMapper.toDto(category.get());
@@ -50,14 +58,18 @@ public class CategoryService {
     public String changeCategoryNameAndDescription(
             Long categoryId, CategoryUpdateDto categoryDto) {
 
-        Category category = categoryRepo.findById(categoryId)
-                .orElseThrow(() ->
-                        new DataNotFound("Category not found with id: " + categoryId));
+        Optional<Category> cat = categoryRepo.findById(categoryId);
+        if(cat.isEmpty()){
+            logger.error("Category not found with this id {}",  categoryId);
+            throw new DataNotFound("Category not found with id: " + categoryId);
+        }
 
+         Category category=cat.get();
         // update name if present
         if (categoryDto.getName() != null && !categoryDto.getName().trim().isEmpty()) {
 
             if (categoryRepo.existsByName(categoryDto.getName())) {
+                logger.error("Category already exists {}",  categoryDto.getName());
                 throw new DuplicateResourceException("Category name already exists");
             }
 
@@ -71,6 +83,7 @@ public class CategoryService {
             category.setDescription(categoryDto.getDescription());
         }
         categoryRepo.save(category);
+        logger.info("Category updated successfully with id: {}", category.getId());
         return "Category updated successfully";
     }
 
@@ -79,9 +92,11 @@ public class CategoryService {
     public String removeCategory(Long categoryId){
         Optional<Category> category = categoryRepo.findById(categoryId);
         if (category.isEmpty()) {
+            logger.error("Category does not found with this id {} ", categoryId);
             throw new DataNotFound("Category not found with this id: "+ categoryId);
         }
         categoryRepo.deleteById(categoryId);
+        logger.info("Category deleted successfully");
         return "Category deleted successfully";
     }
 
