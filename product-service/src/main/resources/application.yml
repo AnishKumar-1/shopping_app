@@ -5,9 +5,9 @@ spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
 
-#server port.
+#server port..
 server:
-  port: 8089
+  port: 8081
 #exposure endpoints
 management:
   endpoints:
