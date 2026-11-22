@@ -6,11 +6,13 @@ on:
       - develop
     paths:
       - 'product-service/**'
+      - '.github/workflows/**'
   push:
     branches:
       - main
     paths:
       - 'product-service/**'
+      - '.github/workflows/**'
 
 jobs:
   # CI: Build and test
