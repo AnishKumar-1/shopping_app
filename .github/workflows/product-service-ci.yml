@@ -15,12 +15,7 @@ on:
     paths:
       - 'product-service/**'
 
-permissions:
-  contents: read
-  id-token: write
-
 jobs:
-
   # CI: Build and test
   build-and-test:
     runs-on: ubuntu-latest
