@@ -4,13 +4,10 @@ on:
   pull_request:
     branches:
       - develop
-      - main
     paths:
       - 'product-service/**'
-
   push:
     branches:
-      - develop
       - main
     paths:
       - 'product-service/**'
@@ -41,6 +38,10 @@ jobs:
     needs: build-and-test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - name: Checkout code
